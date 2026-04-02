@@ -1,150 +1,147 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Habit & Task Pro</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="app">
-        <!-- HEADER -->
-        <header class="glass-header">
-            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                <h1 id="page-title">Dashboard</h1>
-                <button id="theme-toggle" class="btn-text">Dark</button>
+        <!-- HEADER WITH CALENDAR -->
+        <header class="main-header">
+            <div class="header-row">
+                <h1 id="page-title">Сегодня</h1>
+                <div style="display:flex; gap:12px;">
+                    <button id="theme-toggle" class="btn-add" style="background:#2c2c2e; box-shadow:none;">🌙</button>
+                </div>
+            </div>
+            <!-- CALENDAR STRIP -->
+            <div id="week-strip" class="week-strip">
+                <!-- Days will be injected by JS -->
             </div>
         </header>
 
-        <!-- MAIN PAGES CONTAINER -->
-        <main id="main-container">
+        <!-- CONTENT AREA -->
+        <main id="main-content">
             
             <!-- PAGE: DASHBOARD -->
             <section id="page-dashboard" class="page">
-                <div class="widget-grid">
-                    <!-- TIME WIDGET -->
-                    <div class="widget time-widget">
-                        <span class="clock" id="current-time">00:00</span>
-                        <div style="font-size: 14px; opacity: 0.9;" id="current-date">Четверг, 2 апреля</div>
-                    </div>
-                    <!-- QUOTE WIDGET -->
-                    <div class="widget glass quote-widget">
-                        <p id="quote-text">Загрузка мотивации...</p>
-                        <span id="quote-author" class="quote-author"></span>
+                <div class="dashboard-hero">
+                    <!-- PROGRESS RING -->
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="200" height="200">
+                            <circle class="progress-ring-bg" cx="100" cy="100" r="90" />
+                            <circle id="progress-ring-fill" class="progress-ring-fill" cx="100" cy="100" r="90" />
+                        </svg>
+                        <div class="progress-ring-text">
+                            <span id="progress-percent" class="progress-percent">0%</span>
+                            <span class="progress-label">Готово</span>
+                        </div>
                     </div>
                     
-                    <!-- AI INSIGHTS WIDGET -->
-                    <div class="widget glass widget-full" id="ai-insight-box" style="display: none;">
-                        <div style="display: flex; align-items: start; gap: 8px;">
-                            <span style="font-size: 20px;">💡</span>
-                            <div>
-                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">AI Совет дня</div>
-                                <p id="ai-insight-text" style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;"></p>
-                            </div>
+                    <!-- SUMMARY STATS -->
+                    <div style="display:flex; justify-content:space-around; width:100%; text-align:center;">
+                        <div>
+                            <div id="count-habits" style="font-size:20px; font-weight:700;">0/0</div>
+                            <div style="font-size:10px; opacity:0.5; text-transform:uppercase;">Привычки</div>
+                        </div>
+                        <div>
+                            <div id="count-tasks" style="font-size:20px; font-weight:700;">0/0</div>
+                            <div style="font-size:10px; opacity:0.5; text-transform:uppercase;">Задачи</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-title">Прогресс сегодня</div>
-                <div class="widget glass widget-full" style="margin: 0 16px; min-height: auto; padding: 24px;">
-                    <div style="display: flex; justify-content: space-around; align-items: center; text-align: center;">
-                        <div>
-                            <div id="score-habits" style="font-size: 24px; font-weight: 200;">0/0</div>
-                            <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Привычки</div>
-                        </div>
-                        <div style="width: 1px; height: 30px; background: var(--border);"></div>
-                        <div>
-                            <div id="score-total" style="font-size: 32px; font-weight: 400; color: var(--accent);">0%</div>
-                            <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Фокус</div>
-                        </div>
-                        <div style="width: 1px; height: 30px; background: var(--border);"></div>
-                        <div>
-                            <div id="score-tasks" style="font-size: 24px; font-weight: 200;">0/0</div>
-                            <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Задачи</div>
-                        </div>
+                <!-- AI INSIGHT -->
+                <div id="ai-insight-box" style="margin:16px; display:none; background:rgba(52, 199, 89, 0.1); border:1px solid rgba(52, 199, 89, 0.2); border-radius:20px; padding:16px;">
+                    <div style="display:flex; gap:12px; align-items:start;">
+                        <span style="font-size:20px;">💡</span>
+                        <p id="ai-insight-text" style="font-size:14px; line-height:1.4; color:#34c759;"></p>
                     </div>
+                </div>
+
+                <!-- TODAY'S MOTIVATION -->
+                <div style="margin:24px 16px; padding:20px; border-radius:20px; background:linear-gradient(135deg, #1c1c1e, #000);">
+                    <p id="quote-text" style="font-size:16px; font-weight:500; font-style:italic; margin-bottom:8px;"></p>
+                    <span id="quote-author" style="font-size:12px; color:var(--accent);"></span>
                 </div>
             </section>
 
             <!-- PAGE: HABITS -->
-            <section id="page-habits" class="page" style="display: none;">
-                <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Привычки</h2>
-                    <button class="btn-text" id="btn-add-habit">Добавить</button>
+            <section id="page-habits" class="page" style="display:none;">
+                <div class="section-header">
+                    <h2>Мои Привычки</h2>
+                    <button class="btn-add" id="btn-add-habit">Добавить</button>
                 </div>
                 <div id="habits-list" class="card-list"></div>
             </section>
 
             <!-- PAGE: TASKS -->
-            <section id="page-tasks" class="page" style="display: none;">
-                <div style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Задачи</h2>
-                    <button class="btn-text" id="btn-add-task">Новая</button>
+            <section id="page-tasks" class="page" style="display:none;">
+                <div class="section-header">
+                    <h2>Список Задач</h2>
+                    <button class="btn-add" id="btn-add-task">Новая задача</button>
                 </div>
                 <div id="tasks-list" class="card-list"></div>
             </section>
 
             <!-- PAGE: STATS -->
-            <section id="page-stats" class="page" style="display: none;">
-                <div class="section-title">Активность за 7 дней</div>
-                <div id="chart-weekly" class="glass" style="margin: 0 16px; height: 200px; border-radius: 16px; padding: 16px; display: flex; align-items: flex-end; justify-content: space-between;">
-                    <!-- SVG Chart will be injected here -->
+            <section id="page-stats" class="page" style="display:none;">
+                <div class="section-header">
+                    <h2>Статистика</h2>
                 </div>
-                
-                <div class="section-title">Корреляция: Настроение vs Успех</div>
-                <div id="chart-correlation" class="glass" style="margin: 0 16px; height: 160px; border-radius: 16px; position: relative; padding: 16px;">
-                    <!-- Correlation map -->
+                <!-- Weekly Activity Graph -->
+                <div style="margin:0 16px; padding:20px; background:var(--system-card); border-radius:20px;">
+                    <div id="chart-weekly" style="height:160px; display:flex; align-items:flex-end; justify-content:space-between;">
+                        <!-- SVG Bars -->
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:12px; opacity:0.4; font-size:10px; font-weight:600;">
+                        <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
+                    </div>
                 </div>
             </section>
 
         </main>
 
-        <!-- NAVIGATION TAB BAR -->
+        <!-- TAB BAR -->
         <nav class="tab-bar">
             <a href="#" class="tab-item active" onclick="showPage('dashboard', event)">
-                <span class="tab-icon">􀎞</span>
+                <span class="tab-icon">🏠</span>
                 <span>Обзор</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('habits', event)">
-                <span class="tab-icon">􀮞</span>
+                <span class="tab-icon">🔥</span>
                 <span>Привычки</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('tasks', event)">
-                <span class="tab-icon">􀈻</span>
+                <span class="tab-icon">✅</span>
                 <span>Задачи</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('stats', event)">
-                <span class="tab-icon">􀈦</span>
+                <span class="tab-icon">📊</span>
                 <span>Отчеты</span>
             </a>
         </nav>
 
-        <!-- ADD MODALS (SHEETS) -->
+        <!-- MODAL SHEETS -->
         <div class="modal-overlay" id="modal-overlay">
             <div class="modal-sheet" id="modal-sheet">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                    <button class="btn-text" onclick="closeModal()">Отмена</button>
+                <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+                    <button class="btn-add" style="background:#2c2c2e; box-shadow:none;" onclick="closeModal()">Отмена</button>
                     <h3 id="modal-title">Создать</h3>
-                    <button class="btn-text" style="font-weight: 600;" id="modal-save-btn">Готово</button>
+                    <button class="btn-add" id="modal-save-btn">Сохранить</button>
                 </div>
                 <div id="modal-content">
-                    <!-- Form injected by JS -->
+                    <!-- Form bits -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="app.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
-        }
-    </script>
 </body>
 </html>
