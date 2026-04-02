@@ -1,10 +1,11 @@
 /* ========================================
-   HABIT & TASK PRO (v1.5 Glow Dark)
-   Logic, Restore Ring & Weekly Strip
+   ZEN PRODUCTIVITY PRO - v2.0
+   Logic, AI & Cloud Sync Engine
    ======================================== */
 
+// ── STATE ──
 const AppState = {
-    settings: { theme: 'dark', lastSync: null },
+    settings: { theme: 'obsidian', lastSync: null },
     habits: [], 
     tasks: [],  
     records: {}, 
@@ -22,28 +23,28 @@ const Storage = {
         } else {
             this.loadLocal();
         }
-        this.applyTheme();
         this.cleanOldRecords();
+        updateDashboard();
     },
 
     loadLocal() {
-        const data = localStorage.getItem('appState_v1.5');
+        const data = localStorage.getItem('zen_state_v2');
         if (data) Object.assign(AppState, JSON.parse(data));
     },
 
     save() {
-        localStorage.setItem('appState_v1.5', JSON.stringify(AppState));
+        localStorage.setItem('zen_state_v2', JSON.stringify(AppState));
         if (this.tg.initData) {
             const json = JSON.stringify(AppState);
-            this.tg.CloudStorage.setItem('state_data', json, (err) => {
-                if (err) console.error('Cloud Save Error:', err);
+            this.tg.CloudStorage.setItem('zen_data', json, (err) => {
+                if (err) console.error('Sync Error:', err);
             });
         }
     },
 
     async loadCloud() {
         return new Promise((resolve) => {
-            this.tg.CloudStorage.getItem('state_data', (err, value) => {
+            this.tg.CloudStorage.getItem('zen_data', (err, value) => {
                 if (!err && value) {
                     try { Object.assign(AppState, JSON.parse(value)); } catch(e) {}
                 }
@@ -52,270 +53,265 @@ const Storage = {
         });
     },
 
-    applyTheme() {
-        document.documentElement.setAttribute('data-theme', AppState.settings.theme);
-        const toggler = document.getElementById('theme-toggle');
-        if (toggler) toggler.textContent = AppState.settings.theme === 'dark' ? '🌙' : '☀️';
-    },
-
     cleanOldRecords() {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const limitStr = thirtyDaysAgo.toISOString().split('T')[0];
+        const limit = thirtyDaysAgo.toISOString().split('T')[0];
         Object.keys(AppState.records).forEach(date => {
-            if (date < limitStr) delete AppState.records[date];
+            if (date < limit) delete AppState.records[date];
         });
     }
 };
 
-// ── NAVIGATION & PAGES ──
+// ── NAVIGATION ──
 function showPage(pageId, event) {
     if (event) event.preventDefault();
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById(`page-${pageId}`).style.display = 'block';
+    document.querySelectorAll('.page').forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('active-page');
+    });
+    
+    const target = document.getElementById(`page-${pageId}`);
+    target.style.display = 'block';
+    setTimeout(() => target.classList.add('active-page'), 10);
     
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     const indexMap = { dashboard: 0, habits: 1, tasks: 2, stats: 3 };
     document.querySelectorAll('.tab-item')[indexMap[pageId]]?.classList.add('active');
     
-    document.getElementById('page-title').textContent = pageId === 'dashboard' ? 'Сегодня' : 
-                                                        pageId.charAt(0).toUpperCase() + pageId.slice(1);
-    
-    if (pageId === 'stats') renderWeeklyChart();
+    document.getElementById('page-title').textContent = 
+        pageId === 'dashboard' ? 'Сегодня' : 
+        (pageId === 'habits' ? 'Привычки' : 
+        (pageId === 'tasks' ? 'Задачи' : 'Тренды'));
+
+    if (pageId === 'dashboard') updateDashboard();
     if (pageId === 'habits') renderHabits();
     if (pageId === 'tasks') renderTasks();
-    if (pageId === 'dashboard') updateUI();
+    if (pageId === 'stats') renderStatsCharts();
 }
 
-// ── CALENDAR STRIP ──
+// ── UI UPDATES ──
+function updateDashboard() {
+    const now = new Date();
+    document.getElementById('header-time').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+    const date = AppState.selectedDate;
+    const record = AppState.records[date] || { habits: {}, tasks: {} };
+
+    // Habits Progress
+    const hDone = Object.values(record.habits).filter(v => v).length;
+    const hTotal = AppState.habits.length;
+    document.getElementById('h-count').textContent = `${hDone}/${hTotal}`;
+
+    // Tasks Progress
+    const tDone = AppState.tasks.filter(t => t.completed && (!t.date || t.date === date)).length;
+    const tTotal = AppState.tasks.filter(t => !t.date || t.date === date).length;
+    document.getElementById('t-count').textContent = `${tDone}/${tTotal}`;
+
+    // Pulse Score
+    const totalDone = hDone + tDone;
+    const totalAll = hTotal + tTotal;
+    const percent = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
+    
+    const scoreEl = document.getElementById('score-main');
+    scoreEl.textContent = `${percent}%`;
+    scoreEl.style.color = percent > 80 ? 'var(--accent-secondary)' : (percent > 40 ? 'var(--accent-primary)' : 'var(--accent-pink)');
+
+    renderWeekStrip();
+    generateSmartInsights();
+}
+
 function renderWeekStrip() {
     const strip = document.getElementById('week-strip');
-    if (!strip) return;
     strip.innerHTML = '';
-    
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0 is Sun
-    const startOfWeek = new Date(now);
-    const diff = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-    startOfWeek.setDate(now.getDate() - diff);
+    const start = new Date(now);
+    const day = now.getDay();
+    start.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
 
-    const DAY_NAMES = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    const NAMES = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    for(let i=0; i<7; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const dStr = d.toISOString().split('T')[0];
+        const isToday = dStr === new Date().toISOString().split('T')[0];
+        const isSel = dStr === AppState.selectedDate;
 
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(startOfWeek);
-        d.setDate(startOfWeek.getDate() + i);
-        const dateStr = d.toISOString().split('T')[0];
-        const isToday = dateStr === new Date().toISOString().split('T')[0];
-        const isSelected = dateStr === AppState.selectedDate;
-
-        const dayEl = document.createElement('div');
-        dayEl.className = `week-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`;
-        dayEl.innerHTML = `
-            <span class="day-name">${DAY_NAMES[i]}</span>
-            <span class="day-num">${d.getDate()}</span>
-        `;
-        dayEl.onclick = () => {
-            AppState.selectedDate = dateStr;
-            renderWeekStrip();
-            updateUI();
+        const el = document.createElement('div');
+        el.className = `week-day ${isSel ? 'selected' : ''} ${isToday ? 'today' : ''}`;
+        el.innerHTML = `<span class="day-name">${NAMES[i]}</span><span class="day-num">${d.getDate()}</span>`;
+        el.onclick = () => {
+            AppState.selectedDate = dStr;
+            updateDashboard();
         };
-        strip.appendChild(dayEl);
+        strip.appendChild(el);
     }
 }
 
-// ── PROGRESS RING ──
-function updateProgressRing(percent) {
-    const circle = document.getElementById('progress-ring-fill');
-    if (!circle) return;
-    const circumference = 565; // 2 * PI * 90 (approx)
-    const offset = circumference - (percent / 100) * circumference;
-    circle.style.strokeDashoffset = offset;
-    document.getElementById('progress-percent').textContent = `${percent}%`;
+// ── CRUD: HABITS & TASKS ──
+function renderHabits() {
+    const list = document.getElementById('habits-list');
+    list.innerHTML = '';
+    const record = AppState.records[AppState.selectedDate] || { habits: {} };
+
+    AppState.habits.forEach(habit => {
+        const done = !!record.habits[habit.id];
+        const card = document.createElement('div');
+        card.className = `zen-card ${done ? 'completed' : ''}`;
+        card.innerHTML = `
+            <div class="zen-icon" style="color:var(--accent-primary)">${habit.icon}</div>
+            <div style="flex:1;">
+                <div style="font-weight:700; font-size:16px;">${habit.name}</div>
+                <div style="font-size:11px; opacity:0.4; text-transform:uppercase; letter-spacing:1px; margin-top:2px;">Привычка</div>
+            </div>
+            <div class="zen-check">${done ? '✓' : ''}</div>
+            <button style="background:none; border:none; color:var(--accent-pink); padding:8px; font-size:18px;" onclick="deleteHabit('${habit.id}', event)">✕</button>
+        `;
+        card.onclick = () => toggleHabit(habit.id);
+        list.appendChild(card);
+    });
 }
 
-// ── HABITS & TASKS LOGIC ──
-function toggleHabit(habitId) {
+function renderTasks() {
+    const list = document.getElementById('tasks-list');
+    list.innerHTML = '';
     const date = AppState.selectedDate;
-    if (!AppState.records[date]) AppState.records[date] = { habits: {}, tasks: {}, mood: 3 };
+
+    AppState.tasks.filter(t => !t.date || t.date === date).forEach(task => {
+        const card = document.createElement('div');
+        card.className = `zen-card ${task.completed ? 'completed' : ''}`;
+        const pColor = task.priority === 'high' ? 'var(--accent-pink)' : (task.priority === 'med' ? 'var(--accent-primary)' : 'var(--accent-cyan)');
+        card.innerHTML = `
+            <div style="width:4px; height:32px; border-radius:2px; background:${pColor};"></div>
+            <div style="flex:1;">
+                <div style="font-weight:700; font-size:16px; ${task.completed ? 'text-decoration:line-through; opacity:0.4' : ''}">${task.name}</div>
+            </div>
+            <div class="zen-check">${task.completed ? '✓' : ''}</div>
+            <button style="background:none; border:none; color:var(--accent-pink); padding:8px; font-size:18px;" onclick="deleteTask('${task.id}', event)">✕</button>
+        `;
+        card.onclick = () => toggleTask(task.id);
+        list.appendChild(card);
+    });
+}
+
+function toggleHabit(id) {
+    const d = AppState.selectedDate;
+    if(!AppState.records[d]) AppState.records[d] = { habits: {}, tasks: {}, mood: 3 };
+    const cur = !!AppState.records[d].habits[id];
+    AppState.records[d].habits[id] = !cur;
     
-    const current = !!AppState.records[date].habits[habitId];
-    AppState.records[date].habits[habitId] = !current;
-    
-    if (Storage.tg.initData) Storage.tg.HapticFeedback.impactOccurred('medium');
+    if(Storage.tg.initData) Storage.tg.HapticFeedback.impactOccurred('light');
     Storage.save();
-    updateUI();
+    updateDashboard();
     renderHabits();
 }
 
-function toggleTask(taskId) {
-    const task = AppState.tasks.find(t => t.id === taskId);
-    if (task) {
-        task.completed = !task.completed;
-        if (Storage.tg.initData) Storage.tg.HapticFeedback.notificationOccurred('success');
+function toggleTask(id) {
+    const t = AppState.tasks.find(x => x.id === id);
+    if(t) {
+        t.completed = !t.completed;
+        if(Storage.tg.initData) Storage.tg.HapticFeedback.notificationOccurred('success');
         Storage.save();
-        updateUI();
+        updateDashboard();
         renderTasks();
     }
 }
 
-// ── AI INSIGHTS (RESTORED) ──
+// ── SMART ENGINE ──
 function generateSmartInsights() {
     const habits = AppState.habits;
     const records = AppState.records;
     const dates = Object.keys(records).sort().reverse();
     const insights = [];
-    
-    habits.forEach(habit => {
+
+    habits.forEach(h => {
         let fails = 0;
-        for (let i = 0; i < Math.min(dates.length, 5); i++) {
-            if (!records[dates[i]]?.habits[habit.id]) fails++;
+        for(let i=0; i<Math.min(dates.length, 5); i++) {
+            if(!records[dates[i]].habits[h.id]) fails++;
             else break;
         }
-        if (fails >= 3) insights.push(`Привычка "${habit.name}" пропущена ${fails} раз. Попробуй сменить время? 🕒`);
+        if(fails >= 3) insights.push(`Твой ритм сбит: "${h.name}" пропущена ${fails} раз. Давай попробуем зайти с другой стороны? ⚡`);
     });
 
     const box = document.getElementById('ai-insight-box');
     const text = document.getElementById('ai-insight-text');
-    if (insights.length > 0) {
-        box.style.display = 'block';
+    if(insights.length > 0) {
+        box.style.display = 'flex';
         text.textContent = insights[0];
     } else {
         box.style.display = 'none';
     }
 }
 
-// ── UI RENDERING: LISTS ──
-function renderHabits() {
-    const list = document.getElementById('habits-list');
-    if (!list) return;
-    list.innerHTML = '';
-    const date = AppState.selectedDate;
-    const record = AppState.records[date] || { habits: {} };
+function renderStatsCharts() {
+    const chart = document.getElementById('chart-weekly');
+    chart.innerHTML = '';
+    const dates = [];
+    for(let i=6; i>=0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().split('T')[0]);
+    }
 
-    AppState.habits.forEach(habit => {
-        const done = !!record.habits[habit.id];
-        const item = document.createElement('div');
-        item.className = `card-item ${done ? 'completed' : ''}`;
-        item.innerHTML = `
-            <div class="habit-icon-box" style="background:var(--accent-${habit.color});">
-                ${habit.icon}
-            </div>
-            <div style="flex:1;">
-                <div style="font-weight:700;">${habit.name}</div>
-                <div style="font-size:12px; opacity:0.5;">Ежедневно</div>
-            </div>
-            <button class="btn-add" style="background:${done ? 'var(--accent)' : '#2c2c2e'}; box-shadow:none;">
-                ${done ? '✓' : ''}
-            </button>
-            <button class="btn-text" style="color:var(--accent-red); padding:10px;" onclick="deleteHabit('${habit.id}', event)">✕</button>
-        `;
-        item.onclick = () => toggleHabit(habit.id);
-        list.appendChild(item);
+    dates.forEach(date => {
+        const r = AppState.records[date] || { habits: {}, tasks: {} };
+        const hDone = Object.values(r.habits).filter(v => v).length;
+        const tDone = AppState.tasks.filter(t => t.completed && t.date === date).length;
+        const total = AppState.habits.length + AppState.tasks.filter(t => !t.date || t.date === date).length || 1;
+        const h = Math.max(10, Math.round(((hDone + tDone) / total) * 100));
+        
+        const bar = document.createElement('div');
+        bar.style.cssText = `width:12px; height:${h}%; background:var(--accent-primary); border-radius:10px; box-shadow:var(--glow-primary); transition: height 0.8s ease;`;
+        chart.appendChild(bar);
     });
 }
 
-function renderTasks() {
-    const list = document.getElementById('tasks-list');
-    if (!list) return;
-    list.innerHTML = '';
-
-    AppState.tasks.forEach(task => {
-        const item = document.createElement('div');
-        item.className = `card-item ${task.completed ? 'completed' : ''}`;
-        item.innerHTML = `
-            <div style="width:6px; height:24px; border-radius:3px; background:var(--accent-${task.priority === 'high' ? 'red' : (task.priority === 'med' ? 'orange' : 'cyan')})"></div>
-            <div style="flex:1;">
-                <div style="font-weight:700; ${task.completed ? 'text-decoration:line-through; opacity:0.5;' : ''}">${task.name}</div>
-            </div>
-            <button class="btn-add" style="background:${task.completed ? 'var(--accent)' : '#2c2c2e'}; box-shadow:none;">
-                ${task.completed ? '✓' : ''}
-            </button>
-            <button class="btn-text" style="color:var(--accent-red); padding:10px;" onclick="deleteTask('${task.id}', event)">✕</button>
-        `;
-        item.onclick = () => toggleTask(task.id);
-        list.appendChild(item);
-    });
-}
-
-// ── DASHBOARD UPDATE ──
-function updateUI() {
-    const date = AppState.selectedDate;
-    const record = AppState.records[date] || { habits: {}, tasks: {} };
-    
-    // Habits Score
-    const hDone = Object.values(record.habits).filter(v => v).length;
-    const hTotal = AppState.habits.length;
-    document.getElementById('count-habits').textContent = `${hDone}/${hTotal}`;
-    
-    // Tasks Score (all tasks for simplicity in count)
-    const tDone = AppState.tasks.filter(t => t.completed).length;
-    const tTotal = AppState.tasks.length;
-    document.getElementById('count-tasks').textContent = `${tDone}/${tTotal}`;
-    
-    // Ring Progress
-    const totalDone = hDone + tDone;
-    const totalAll = hTotal + tTotal;
-    const percent = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
-    updateProgressRing(percent);
-    
-    generateSmartInsights();
-    renderWeekStrip();
-}
-
-// ── MODAL SYSTEM ──
-let currentModalType = '';
+// ── MODALS ──
+let modalType = '';
 function openModal(type) {
-    currentModalType = type;
+    modalType = type;
     document.getElementById('modal-overlay').style.display = 'block';
     setTimeout(() => document.getElementById('modal-sheet').style.transform = 'translateY(0)', 10);
     const content = document.getElementById('modal-content');
+    const title = document.getElementById('modal-title');
     
-    if (type === 'habit') {
+    if(type === 'habit') {
+        title.textContent = 'Новая Привычка';
         content.innerHTML = `
-            <input type="text" id="inp-name" placeholder="Название привычки">
+            <input type="text" id="m-name" placeholder="Чего достигнем?">
             <div style="display:flex; gap:12px;">
-                <input type="text" id="inp-icon" value="🔥" style="width:70px; text-align:center;">
-                <select id="inp-color">
-                    <option value="purple">Фиолетовый</option>
-                    <option value="orange">Оранжевый</option>
-                    <option value="green">Зеленый</option>
-                    <option value="cyan">Голубой</option>
-                </select>
+                <input type="text" id="m-icon" value="⚡" style="width:70px; text-align:center;">
+                <select id="m-meta"><option value="indigo">Electric Indigo</option><option value="mint">Cyber Mint</option></select>
             </div>
         `;
     } else {
+        title.textContent = 'Новая Задача';
         content.innerHTML = `
-            <input type="text" id="inp-name" placeholder="Что нужно сделать?">
-            <select id="inp-priority">
-                <option value="low">Низкий приоритет</option>
-                <option value="med">Средний приоритет</option>
-                <option value="high">Высокий приоритет</option>
-            </select>
+            <input type="text" id="m-name" placeholder="Что нужно сделать?">
+            <select id="m-meta"><option value="low">Низкий приоритет</option><option value="med">Средний приоритет</option><option value="high">Высокий приоритет</option></select>
         `;
     }
 }
 
 function closeModal() {
     document.getElementById('modal-sheet').style.transform = 'translateY(100%)';
-    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300);
+    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 400);
 }
 
 function saveModal() {
-    const name = document.getElementById('inp-name').value;
-    if (!name) return;
-    
-    if (currentModalType === 'habit') {
-        const icon = document.getElementById('inp-icon').value;
-        const color = document.getElementById('inp-color').value;
-        AppState.habits.push({ id: Date.now().toString(), name, icon, color });
+    const name = document.getElementById('m-name').value;
+    if(!name) return;
+    const meta = document.getElementById('m-meta').value;
+
+    if(modalType === 'habit') {
+        AppState.habits.push({ id: Date.now().toString(), name, icon: document.getElementById('m-icon').value, color: meta });
     } else {
-        const priority = document.getElementById('inp-priority').value;
-        AppState.tasks.push({ id: Date.now().toString(), name, priority, completed: false });
+        AppState.tasks.push({ id: Date.now().toString(), name, priority: meta, completed: false, date: AppState.selectedDate });
     }
-    
+
     Storage.save();
     closeModal();
-    updateUI();
+    updateDashboard();
     renderHabits();
     renderTasks();
 }
@@ -325,7 +321,7 @@ function deleteHabit(id, e) {
     AppState.habits = AppState.habits.filter(h => h.id !== id);
     Storage.save();
     renderHabits();
-    updateUI();
+    updateDashboard();
 }
 
 function deleteTask(id, e) {
@@ -333,35 +329,28 @@ function deleteTask(id, e) {
     AppState.tasks = AppState.tasks.filter(t => t.id !== id);
     Storage.save();
     renderTasks();
-    updateUI();
+    updateDashboard();
 }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
     await Storage.init();
     
-    // First run defaults
-    if (AppState.habits.length === 0) {
-        AppState.habits = [
-            { id: '1', name: 'Медитация', icon: '🧘', color: 'purple' },
-            { id: '2', name: 'Тренировка', icon: '💪', color: 'orange' }
-        ];
+    // First Run
+    if(AppState.habits.length === 0) {
+        AppState.habits = [{ id: '1', name: 'Медитация', icon: '🧘', color: 'indigo' }];
         Storage.save();
     }
-    
-    // Button setup
-    document.getElementById('theme-toggle').onclick = () => {
-        AppState.settings.theme = AppState.settings.theme === 'dark' ? 'light' : 'dark';
-        Storage.applyTheme();
-        Storage.save();
-    };
-    
+
     document.getElementById('btn-add-habit').onclick = () => openModal('habit');
     document.getElementById('btn-add-task').onclick = () => openModal('task');
     document.getElementById('modal-save-btn').onclick = saveModal;
-    
-    document.getElementById('quote-text').textContent = "Дисциплина — это свобода.";
-    document.getElementById('quote-author').textContent = "— Джоко Виллинк";
+    document.getElementById('modal-overlay').onclick = (e) => { if(e.target.id === 'modal-overlay') closeModal(); };
 
-    updateUI();
+    document.getElementById('quote-text').textContent = "Всё начинается с одного шага.";
+    document.getElementById('quote-author').textContent = "— Лао-цзы";
+
+    setInterval(() => {
+        document.getElementById('header-time').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }, 60000);
 });

@@ -5,101 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Habit & Task Pro</title>
+    <title>Zen Productivity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="app">
-        <!-- HEADER WITH CALENDAR -->
-        <header class="main-header">
-            <div class="header-row">
+        <!-- MODER HEADER WITH CALENDAR -->
+        <header class="zen-header">
+            <div class="zen-title-row">
                 <h1 id="page-title">Сегодня</h1>
-                <div style="display:flex; gap:12px;">
-                    <button id="theme-toggle" class="btn-add" style="background:#2c2c2e; box-shadow:none;">🌙</button>
-                </div>
+                <div id="header-time" style="font-weight: 700; font-size: 14px; opacity: 0.8; letter-spacing: 1px;">00:00</div>
             </div>
             <!-- CALENDAR STRIP -->
             <div id="week-strip" class="week-strip">
-                <!-- Days will be injected by JS -->
+                <!-- Days injected via JS -->
             </div>
         </header>
 
-        <!-- CONTENT AREA -->
+        <!-- MAIN SCROLLABLE CONTENT -->
         <main id="main-content">
             
-            <!-- PAGE: DASHBOARD -->
+            <!-- PAGE: DASHBOARD (PULSE) -->
             <section id="page-dashboard" class="page">
-                <div class="dashboard-hero">
-                    <!-- PROGRESS RING -->
-                    <div class="progress-ring-container">
-                        <svg class="progress-ring" width="200" height="200">
-                            <circle class="progress-ring-bg" cx="100" cy="100" r="90" />
-                            <circle id="progress-ring-fill" class="progress-ring-fill" cx="100" cy="100" r="90" />
-                        </svg>
-                        <div class="progress-ring-text">
-                            <span id="progress-percent" class="progress-percent">0%</span>
-                            <span class="progress-label">Готово</span>
-                        </div>
-                    </div>
-                    
-                    <!-- SUMMARY STATS -->
-                    <div style="display:flex; justify-content:space-around; width:100%; text-align:center;">
-                        <div>
-                            <div id="count-habits" style="font-size:20px; font-weight:700;">0/0</div>
-                            <div style="font-size:10px; opacity:0.5; text-transform:uppercase;">Привычки</div>
-                        </div>
-                        <div>
-                            <div id="count-tasks" style="font-size:20px; font-weight:700;">0/0</div>
-                            <div style="font-size:10px; opacity:0.5; text-transform:uppercase;">Задачи</div>
+                <div class="pulse-container">
+                    <div class="pulse-card">
+                        <span id="score-main" class="score-main">0%</span>
+                        <span class="score-label">Пульс Продуктивности</span>
+                        
+                        <div style="display:flex; justify-content:center; gap:24px; margin-top:32px;">
+                            <div>
+                                <div id="h-count" style="font-size:18px; font-weight:800; color:var(--accent-primary);">0/0</div>
+                                <div style="font-size:9px; font-weight:700; opacity:0.4; letter-spacing:1px; text-transform:uppercase;">Привычки</div>
+                            </div>
+                            <div style="width:1px; height:24px; background:var(--card-border);"></div>
+                            <div>
+                                <div id="t-count" style="font-size:18px; font-weight:800; color:var(--accent-secondary);">0/0</div>
+                                <div style="font-size:9px; font-weight:700; opacity:0.4; letter-spacing:1px; text-transform:uppercase;">Задачи</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- AI INSIGHT -->
-                <div id="ai-insight-box" style="margin:16px; display:none; background:rgba(52, 199, 89, 0.1); border:1px solid rgba(52, 199, 89, 0.2); border-radius:20px; padding:16px;">
-                    <div style="display:flex; gap:12px; align-items:start;">
-                        <span style="font-size:20px;">💡</span>
-                        <p id="ai-insight-text" style="font-size:14px; line-height:1.4; color:#34c759;"></p>
+                <!-- SMART AI INSIGHT (GLASS CARD) -->
+                <div id="ai-insight-box" class="ai-modal" style="display:none;">
+                    <div style="font-size:24px; filter: drop-shadow(0 0 8px var(--accent-primary));">✨</div>
+                    <div style="flex:1;">
+                        <div style="font-size:11px; font-weight:800; color:var(--accent-primary); text-transform:uppercase; margin-bottom:4px; letter-spacing:1.5px;">Zen Инсайт</div>
+                        <p id="ai-insight-text" style="font-size:13px; line-height:1.5; color:var(--text-secondary);"></p>
                     </div>
                 </div>
 
-                <!-- TODAY'S MOTIVATION -->
-                <div style="margin:24px 16px; padding:20px; border-radius:20px; background:linear-gradient(135deg, #1c1c1e, #000);">
-                    <p id="quote-text" style="font-size:16px; font-weight:500; font-style:italic; margin-bottom:8px;"></p>
-                    <span id="quote-author" style="font-size:12px; color:var(--accent);"></span>
+                <!-- DAILY MOTIVATION -->
+                <div style="padding:0 20px 40px; text-align:center;">
+                    <p id="quote-text" style="font-size:15px; font-weight:400; opacity:0.6; line-height:1.6;"></p>
+                    <div id="quote-author" style="font-size:10px; font-weight:800; color:var(--accent-primary); margin-top:12px; text-transform:uppercase; letter-spacing:1px;"></div>
                 </div>
             </section>
 
             <!-- PAGE: HABITS -->
             <section id="page-habits" class="page" style="display:none;">
                 <div class="section-header">
-                    <h2>Мои Привычки</h2>
-                    <button class="btn-add" id="btn-add-habit">Добавить</button>
+                    <h2>Привычки</h2>
+                    <button class="btn-icon-add" id="btn-add-habit">+</button>
                 </div>
-                <div id="habits-list" class="card-list"></div>
+                <div id="habits-list" class="stack-list"></div>
             </section>
 
             <!-- PAGE: TASKS -->
             <section id="page-tasks" class="page" style="display:none;">
                 <div class="section-header">
-                    <h2>Список Задач</h2>
-                    <button class="btn-add" id="btn-add-task">Новая задача</button>
+                    <h2>Задачи</h2>
+                    <button class="btn-icon-add" id="btn-add-task" style="background:var(--accent-secondary); box-shadow:var(--glow-secondary);">+</button>
                 </div>
-                <div id="tasks-list" class="card-list"></div>
+                <div id="tasks-list" class="stack-list"></div>
             </section>
 
             <!-- PAGE: STATS -->
             <section id="page-stats" class="page" style="display:none;">
                 <div class="section-header">
-                    <h2>Статистика</h2>
+                    <h2>Аналитика</h2>
                 </div>
-                <!-- Weekly Activity Graph -->
-                <div style="margin:0 16px; padding:20px; background:var(--system-card); border-radius:20px;">
-                    <div id="chart-weekly" style="height:160px; display:flex; align-items:flex-end; justify-content:space-between;">
-                        <!-- SVG Bars -->
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:12px; opacity:0.4; font-size:10px; font-weight:600;">
+                <!-- Mini Heatmap / Weekly Graph -->
+                <div class="pulse-card" style="margin:0 20px; padding:24px 16px; border-radius:24px;">
+                    <div id="chart-weekly" style="height:140px; display:flex; align-items:flex-end; justify-content:space-between; gap:8px;"></div>
+                    <div style="display:flex; justify-content:space-between; margin-top:16px; opacity:0.3; font-size:9px; font-weight:800; letter-spacing:1px;">
                         <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
                     </div>
                 </div>
@@ -107,37 +100,37 @@
 
         </main>
 
-        <!-- TAB BAR -->
-        <nav class="tab-bar">
+        <!-- FLOATING DOCK NAVIGATION -->
+        <nav class="zen-tabs">
             <a href="#" class="tab-item active" onclick="showPage('dashboard', event)">
-                <span class="tab-icon">🏠</span>
-                <span>Обзор</span>
+                <span class="tab-icon">⚡</span>
+                <span>Пульс</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('habits', event)">
-                <span class="tab-icon">🔥</span>
+                <span class="tab-icon">💎</span>
                 <span>Привычки</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('tasks', event)">
-                <span class="tab-icon">✅</span>
+                <span class="tab-icon">🔥</span>
                 <span>Задачи</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('stats', event)">
-                <span class="tab-icon">📊</span>
-                <span>Отчеты</span>
+                <span class="tab-icon">📈</span>
+                <span>Тренды</span>
             </a>
         </nav>
 
-        <!-- MODAL SHEETS -->
+        <!-- MODERN MODAL SHEET -->
         <div class="modal-overlay" id="modal-overlay">
             <div class="modal-sheet" id="modal-sheet">
-                <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
-                    <button class="btn-add" style="background:#2c2c2e; box-shadow:none;" onclick="closeModal()">Отмена</button>
-                    <h3 id="modal-title">Создать</h3>
-                    <button class="btn-add" id="modal-save-btn">Сохранить</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+                    <h2 id="modal-title" style="font-size:24px; font-weight:900;">Новая цель</h2>
+                    <button style="background:none; border:none; color:var(--text-muted); font-size:24px;" onclick="closeModal()">✕</button>
                 </div>
                 <div id="modal-content">
-                    <!-- Form bits -->
+                    <!-- Form components -->
                 </div>
+                <button class="btn-primary" id="modal-save-btn">Сохранить</button>
             </div>
         </div>
     </div>
