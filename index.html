@@ -84,19 +84,35 @@
                 <div id="tasks-list" class="stack-list"></div>
             </section>
 
-            <!-- PAGE: STATS -->
-            <section id="page-stats" class="page" style="display:none;">
+            <!-- PAGE: STATS (RENAMED TO FINANCE) -->
+            <section id="page-finance" class="page" style="display:none;">
                 <div class="section-header">
-                    <h2>Аналитика</h2>
+                    <h2>Бюджет</h2>
+                    <button class="btn-icon-add" id="btn-add-finance" style="background:var(--accent-gold); box-shadow:0 0 20px rgba(245, 158, 11, 0.3);">+</button>
                 </div>
-                <!-- Mini Heatmap / Weekly Graph -->
-                <div class="pulse-card" style="margin:0 20px; padding:24px 16px; border-radius:24px;">
-                    <div id="chart-weekly" style="height:140px; display:flex; align-items:flex-end; justify-content:space-between; gap:8px;"></div>
-                    <div style="display:flex; justify-content:space-between; margin-top:16px; opacity:0.3; font-size:9px; font-weight:800; letter-spacing:1px;">
-                        <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
+                
+                <!-- BALANCE CARD -->
+                <div class="pulse-card" style="margin:0 20px 24px; padding:24px; border-radius:28px;">
+                    <span id="balance-total" class="score-main" style="font-size:36px; color:var(--accent-gold);">0</span>
+                    <span class="score-label" style="display:block; margin-top:4px;">Баланс (UZS)</span>
+                    
+                    <div style="display:flex; justify-content:space-between; margin-top:24px; text-align:left;">
+                        <div>
+                            <div id="balance-income" style="font-size:16px; font-weight:800; color:var(--accent-secondary);">0</div>
+                            <div style="font-size:9px; font-weight:700; opacity:0.4; text-transform:uppercase;">Доходы</div>
+                        </div>
+                        <div>
+                            <div id="balance-expense" style="font-size:16px; font-weight:800; color:var(--accent-pink);">0</div>
+                            <div style="font-size:9px; font-weight:700; opacity:0.4; text-transform:uppercase;">Расходы</div>
+                        </div>
                     </div>
                 </div>
+
+                <div id="finance-list" class="stack-list"></div>
             </section>
+
+            <!-- PAGE: STATS (MOVED TO BOTTOM) -->
+            <section id="page-stats" class="page" style="display:none;">
 
         </main>
 
@@ -108,15 +124,19 @@
             </a>
             <a href="#" class="tab-item" onclick="showPage('habits', event)">
                 <span class="tab-icon">💎</span>
-                <span>Привычки</span>
+                <span>Цели</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('tasks', event)">
                 <span class="tab-icon">🔥</span>
-                <span>Задачи</span>
+                <span>Дела</span>
+            </a>
+            <a href="#" class="tab-item" onclick="showPage('finance', event)">
+                <span class="tab-icon">💰</span>
+                <span>Бюджет</span>
             </a>
             <a href="#" class="tab-item" onclick="showPage('stats', event)">
                 <span class="tab-icon">📈</span>
-                <span>Тренды</span>
+                <span>Тренд</span>
             </a>
         </nav>
 
@@ -127,8 +147,8 @@
                     <h2 id="modal-title" style="font-size:24px; font-weight:900;">Новая цель</h2>
                     <button style="background:none; border:none; color:var(--text-muted); font-size:24px;" onclick="closeModal()">✕</button>
                 </div>
-                <div id="modal-content">
-                    <!-- Form components -->
+                <div id="modal-content" style="margin-bottom:24px;">
+                    <!-- Forms injected via JS with specific fields for Finance/Recurrence -->
                 </div>
                 <button class="btn-primary" id="modal-save-btn">Сохранить</button>
             </div>
