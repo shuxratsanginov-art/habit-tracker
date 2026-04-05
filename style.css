@@ -220,7 +220,22 @@ h2 { font-size: 20px; font-weight: 700; }
     display: flex; align-items: center; justify-content: center;
     transition: all 0.3s ease;
     cursor: pointer;
+    background: transparent;
+    color: white;
 }
+
+.action-btn {
+    background: none; border: none;
+    color: var(--text-muted);
+    padding: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex; align-items: center;
+}
+
+.action-btn:hover { color: var(--accent-pink); }
+.action-btn.edit:hover { color: var(--accent-primary); }
 
 .completed .zen-check {
     background: var(--accent-secondary);
@@ -310,7 +325,7 @@ h2 { font-size: 20px; font-weight: 700; }
 
 input, select {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: #1c1c1e; /* Solid background for focus */
     border: 1px solid var(--card-border);
     padding: 18px;
     border-radius: 16px;
@@ -318,7 +333,10 @@ input, select {
     font-size: 16px;
     margin-bottom: 20px;
     outline: none;
+    display: block; /* Ensure it stays in layout */
 }
+
+input:focus { border-color: var(--accent-primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
 
 .btn-primary {
     background: var(--accent-primary);
