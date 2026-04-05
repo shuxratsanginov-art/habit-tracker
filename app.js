@@ -1,7 +1,17 @@
 /* ========================================
-   ZEN PRODUCTIVITY PRO - v3.1 (Final Fix)
-   Advanced Recurrence, Finance & Full CRUD
+   ZEN PRODUCTIVITY PRO - v3.3 (Stable)
+   Static Modal UI & Local Timezone Fix
    ======================================== */
+
+// ── DATE HELPER: ALWAYS USE LOCAL DATE (GMT+5) ──
+function getLocalDate() {
+    const now = new Date();
+    // For Uzbek timezone or any local, use Intl or manual offset
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 const AppState = {
     settings: { theme: 'obsidian', currency: 'сум' },
@@ -9,7 +19,7 @@ const AppState = {
     tasks: [],   
     finances: [], 
     records: {}, 
-    selectedDate: new Date().toISOString().split('T')[0]
+    selectedDate: getLocalDate()
 };
 
 const Storage = {
@@ -21,7 +31,6 @@ const Storage = {
             await this.loadCloud();
         } else { this.loadLocal(); }
         
-        // Restore Initial Habits if empty
         if (AppState.habits.length === 0) {
             AppState.habits = [
                 { id: 'h1', name: 'Медитация', icon: '🧘', color: 'indigo', repeat: {type:'daily', value:[]} },
@@ -32,7 +41,6 @@ const Storage = {
             ];
             this.save();
         }
-        
         updateDashboard();
     },
     loadLocal() {
@@ -110,16 +118,15 @@ function renderWeekStrip() {
     for(let i=0; i<7; i++) {
         const d = new Date(start); d.setDate(start.getDate() + i);
         const dStr = d.toISOString().split('T')[0];
-        const isSel = dStr === AppState.selectedDate;
+        const isToday = dStr === getLocalDate();
         const el = document.createElement('div');
-        el.className = `week-day ${isSel ? 'selected' : ''}`;
+        el.className = `week-day ${dStr === AppState.selectedDate ? 'selected' : ''} ${isToday ? 'today' : ''}`;
         el.innerHTML = `<span class="day-name">${DAYS[i]}</span><span class="day-num">${d.getDate()}</span>`;
         el.onclick = () => { AppState.selectedDate = dStr; updateDashboard(); };
         strip.appendChild(el);
     }
 }
 
-// ── RENDERING WITH ACTIONS ──
 function getActionButtons(type, id) {
     return `<div style="display:flex; gap:8px;">
                 <button class="action-btn edit" onclick="editItem('${type}', '${id}', event)">✎</button>
@@ -128,54 +135,40 @@ function getActionButtons(type, id) {
 }
 
 function renderHabits() {
-    const list = document.getElementById('habits-list');
-    list.innerHTML = '';
+    const list = document.getElementById('habits-list'); list.innerHTML = '';
     const date = AppState.selectedDate;
     const record = AppState.records[date] || { habits:{} };
     AppState.habits.filter(h => isScheduledFor(h, date)).forEach(h => {
         const done = !!record.habits[h.id];
         const card = document.createElement('div');
         card.className = `zen-card ${done ? 'completed' : ''}`;
-        card.innerHTML = `<div class="zen-icon">${h.icon}</div>
-                         <div style="flex:1;"><div style="font-weight:700;">${h.name}</div></div>
-                         ${getActionButtons('habit', h.id)}
-                         <div class="zen-check" onclick="toggleHabit('${h.id}', event)">${done?'✓':''}</div>`;
-        card.onclick = () => editItem('habit', h.id);
-        list.appendChild(card);
+        card.innerHTML = `<div class="zen-icon">${h.icon}</div><div style="flex:1;"><div style="font-weight:700;">${h.name}</div></div>${getActionButtons('habit', h.id)}<div class="zen-check" onclick="toggleHabit('${h.id}', event)">${done?'✓':''}</div>`;
+        card.onclick = () => editItem('habit', h.id); list.appendChild(card);
     });
 }
 
 function renderTasks() {
-    const list = document.getElementById('tasks-list');
-    list.innerHTML = '';
+    const list = document.getElementById('tasks-list'); list.innerHTML = '';
     const date = AppState.selectedDate;
     const record = AppState.records[date] || { tasks:{} };
     AppState.tasks.filter(t => isScheduledFor(t, date)).forEach(t => {
         const done = !!record.tasks[t.id];
         const card = document.createElement('div');
         card.className = `zen-card ${done ? 'completed' : ''}`;
-        card.innerHTML = `<div style="width:4px; height:24px; background:var(--accent-${t.priority === 'high'?'pink':'primary'})"></div>
-                         <div style="flex:1;"><div style="font-weight:700;">${t.name}</div></div>
-                         ${getActionButtons('task', t.id)}
-                         <div class="zen-check" onclick="toggleTask('${t.id}', event)">${done?'✓':''}</div>`;
-        card.onclick = () => editItem('task', t.id);
-        list.appendChild(card);
+        card.innerHTML = `<div style="width:4px; height:24px; background:var(--accent-${t.priority === 'high'?'pink':'primary'})"></div><div style="flex:1;"><div style="font-weight:700;">${t.name}</div></div>${getActionButtons('task', t.id)}<div class="zen-check" onclick="toggleTask('${t.id}', event)">${done?'✓':''}</div>`;
+        card.onclick = () => editItem('task', t.id); list.appendChild(card);
     });
 }
 
 function renderFinance() {
-    const list = document.getElementById('finance-list');
-    list.innerHTML = '';
+    const list = document.getElementById('finance-list'); list.innerHTML = '';
     const date = AppState.selectedDate;
     let inc = 0, exp = 0;
     AppState.finances.filter(f => isScheduledFor(f, date)).forEach(f => {
         if(f.type === 'in') inc += Number(f.amount); else exp += Number(f.amount);
         const card = document.createElement('div');
         card.className = 'zen-card';
-        card.innerHTML = `<div style="font-size:20px;">${f.type==='in'?'💰':'💸'}</div>
-                         <div style="flex:1;"><b>${f.name}</b></div>
-                         <div style="color:${f.type==='in'?'var(--accent-secondary)':'var(--accent-pink)'}; font-weight:800; margin-right:12px;">${f.type==='in'?'+':'-'}${Number(f.amount).toLocaleString()}</div>
-                         ${getActionButtons('finance', f.id)}`;
+        card.innerHTML = `<div style="font-size:20px;">${f.type==='in'?'💰':'💸'}</div><div style="flex:1;"><b>${f.name}</b></div><div style="color:${f.type==='in'?'var(--accent-secondary)':'var(--accent-pink)'}; font-weight:800; margin-right:12px;">${f.type==='in'?'+':'-'}${Number(f.amount).toLocaleString()}</div>${getActionButtons('finance', f.id)}`;
         list.appendChild(card);
     });
     document.getElementById('balance-income').textContent = `${inc.toLocaleString()}`;
@@ -184,76 +177,42 @@ function renderFinance() {
 }
 
 // ── CRUD LOGIC ──
-function toggleHabit(id, e) {
-    if(e) e.stopPropagation();
-    const date = AppState.selectedDate;
-    if(!AppState.records[date]) AppState.records[date] = { habits:{}, tasks:{}, finances:{} };
-    AppState.records[date].habits[id] = !AppState.records[date].habits[id];
-    Storage.save(); renderHabits(); updateDashboard();
-}
+function toggleHabit(id, e) { if(e) e.stopPropagation(); const d = AppState.selectedDate; if(!AppState.records[d]) AppState.records[d] = {habits:{}, tasks:{}, finances:{}}; AppState.records[d].habits[id] = !AppState.records[d].habits[id]; Storage.save(); renderHabits(); updateDashboard(); }
+function toggleTask(id, e) { if(e) e.stopPropagation(); const d = AppState.selectedDate; if(!AppState.records[d]) AppState.records[d] = {habits:{}, tasks:{}, finances:{}}; AppState.records[d].tasks[id] = !AppState.records[d].tasks[id]; Storage.save(); renderTasks(); updateDashboard(); }
+function deleteItem(type, id, e) { if(e) e.stopPropagation(); if(!confirm('Удалить?')) return; const key = type === 'finance' ? 'finances' : type + 's'; AppState[key] = AppState[key].filter(x => x.id !== id); Storage.save(); showPage(type==='finance'?'finance':type+'s'); }
+function editItem(type, id, e) { if(e) e.stopPropagation(); const key = type === 'finance' ? 'finances' : type + 's'; const item = AppState[key].find(x => x.id === id); openModal(type, item); }
 
-function toggleTask(id, e) {
-    if(e) e.stopPropagation();
-    const date = AppState.selectedDate;
-    if(!AppState.records[date]) AppState.records[date] = { habits:{}, tasks:{}, finances:{} };
-    AppState.records[date].tasks[id] = !AppState.records[date].tasks[id];
-    Storage.save(); renderTasks(); updateDashboard();
-}
-
-function deleteItem(type, id, e) {
-    if(e) e.stopPropagation();
-    if(!confirm('Удалить?')) return;
-    const key = type === 'finance' ? 'finances' : type + 's';
-    AppState[key] = AppState[key].filter(x => x.id !== id);
-    Storage.save(); 
-    if(type === 'habit') renderHabits(); else if(type === 'task') renderTasks(); else renderFinance();
-    updateDashboard();
-}
-
-function editItem(type, id, e) {
-    if(e) e.stopPropagation();
-    const key = type === 'finance' ? 'finances' : type + 's';
-    const item = AppState[key].find(x => x.id === id);
-    openModal(type, item);
-}
-
-// ── MODAL SYSTEM ──
+// ── STABLE MODAL UI (WORKING WITH STATIC FIELDS) ──
+let currentModalId = null;
 function openModal(type, existingItem = null) {
-    const list = document.getElementById('modal-content');
+    currentModalId = existingItem?.id || null;
+    const overlay = document.getElementById('modal-overlay');
+    const sheet = document.getElementById('modal-sheet');
     const title = document.getElementById('modal-title');
-    document.getElementById('modal-overlay').style.display = 'block';
-    setTimeout(() => document.getElementById('modal-sheet').style.transform = 'translateY(0)', 10);
-
-    title.textContent = existingItem ? 'Редактировать' : (type === 'finance' ? 'Финансы' : (type === 'habit' ? 'Привычка' : 'Задача'));
+    const finFields = document.getElementById('m-finance-fields');
     
-    let html = `<input type="text" id="m-name" placeholder="Название (обязательно)" value="${existingItem ? existingItem.name : ''}" autofocus autocomplete="off">`;
+    // Clear & Prepare
+    document.getElementById('m-name').value = existingItem ? existingItem.name : '';
+    document.getElementById('m-repeat').value = existingItem?.repeat?.type || 'none';
+    finFields.style.display = type === 'finance' ? 'block' : 'none';
     if(type === 'finance') {
-        html += `<input type="number" id="m-amount" placeholder="Сумма (сум)" value="${existingItem ? existingItem.amount : ''}" autocomplete="off">
-                 <select id="m-type"><option value="out" ${existingItem?.type==='out'?'selected':''}>Расход</option><option value="in" ${existingItem?.type==='in'?'selected':''}>Доход</option></select>`;
+        document.getElementById('m-amount').value = existingItem ? existingItem.amount : '';
+        document.getElementById('m-type').value = existingItem ? existingItem.type : 'out';
     }
-    html += `<select id="m-repeat">
-                <option value="none" ${existingItem?.repeat?.type==='none'?'selected':''}>Без повтора</option>
-                <option value="daily" ${existingItem?.repeat?.type==='daily'?'selected':''}>Каждый день</option>
-                <option value="weekly" ${existingItem?.repeat?.type==='weekly'?'selected':''}>Раз в неделю</option>
-                <option value="monthly" ${existingItem?.repeat?.type==='monthly'?'selected':''}>Раз в месяц</option>
-             </select>`;
     
-    list.innerHTML = html;
-    document.getElementById('modal-save-btn').onclick = () => saveItem(type, existingItem?.id);
+    title.textContent = existingItem ? 'Изменить' : (type === 'finance' ? 'Бюджет' : (type === 'habit' ? 'Привычка' : 'Задача'));
+    overlay.style.display = 'block';
+    setTimeout(() => sheet.style.transform = 'translateY(0)', 50);
+
+    document.getElementById('modal-save-btn').onclick = () => saveItem(type, currentModalId);
     
-    // Explicit focus for mobile keyboards
-    setTimeout(() => {
-        const input = document.getElementById('m-name');
-        if(input) {
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-        }
-    }, 300);
+    // Forced Focus
+    setTimeout(() => { document.getElementById('m-name').focus(); }, 400);
 }
 
 function saveItem(type, existingId) {
     const name = document.getElementById('m-name').value;
-    if(!name) return;
+    if(!name) { Storage.tg.HapticFeedback.notificationOccurred('error'); return; }
     const repeatType = document.getElementById('m-repeat').value;
     const date = AppState.selectedDate;
     
@@ -273,38 +232,25 @@ function saveItem(type, existingId) {
     if(existingId) {
         const idx = AppState[key].findIndex(x => x.id === existingId);
         AppState[key][idx] = Object.assign(AppState[key][idx], itemData);
-    } else {
-        AppState[key].push(itemData);
-    }
+    } else { AppState[key].push(itemData); }
 
     Storage.save(); closeModal(); 
-    if(type === 'finance') renderFinance(); else if(type === 'habit') renderHabits(); else renderTasks();
+    showPage(type==='finance'?'finance':type+'s');
     updateDashboard();
 }
 
 function closeModal() {
     document.getElementById('modal-sheet').style.transform = 'translateY(100%)';
-    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 400);
+    setTimeout(() => document.getElementById('modal-overlay').style.display = 'none', 300);
 }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
     await Storage.init();
-    
     document.getElementById('btn-add-habit').onclick = () => openModal('habit');
     document.getElementById('btn-add-task').onclick = () => openModal('task');
     document.getElementById('btn-add-finance').onclick = () => openModal('finance');
-    
-    // Fix: Clicking inside the sheet should NOT close it
     document.getElementById('modal-sheet').onclick = (e) => e.stopPropagation();
-    
-    // Clicking the overlay directly SHOULD close it
-    document.getElementById('modal-overlay').onclick = (e) => {
-        if(e.target.id === 'modal-overlay') closeModal();
-    };
-
-    document.getElementById('quote-text').textContent = "Всё начинается с одного шага.";
-    document.getElementById('quote-author').textContent = "— Лао-цзы";
-
-    showPage('dashboard');
+    document.getElementById('modal-overlay').onclick = (e) => { if(e.target.id === 'modal-overlay') closeModal(); };
+    setInterval(() => { document.getElementById('header-time').textContent = new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }); }, 1000);
 });
