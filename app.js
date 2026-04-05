@@ -224,11 +224,11 @@ function openModal(type, existingItem = null) {
     document.getElementById('modal-overlay').style.display = 'block';
     setTimeout(() => document.getElementById('modal-sheet').style.transform = 'translateY(0)', 10);
 
-    title.textContent = existingItem ? 'Редактировать' : (type === 'finance' ? 'Новый расход/доход' : 'Новое дело/цель');
+    title.textContent = existingItem ? 'Редактировать' : (type === 'finance' ? 'Финансы' : (type === 'habit' ? 'Привычка' : 'Задача'));
     
-    let html = `<input type="text" id="m-name" placeholder="Название" value="${existingItem ? existingItem.name : ''}">`;
+    let html = `<input type="text" id="m-name" placeholder="Название (обязательно)" value="${existingItem ? existingItem.name : ''}" autofocus autocomplete="off">`;
     if(type === 'finance') {
-        html += `<input type="number" id="m-amount" placeholder="Сумма (сум)" value="${existingItem ? existingItem.amount : ''}">
+        html += `<input type="number" id="m-amount" placeholder="Сумма (сум)" value="${existingItem ? existingItem.amount : ''}" autocomplete="off">
                  <select id="m-type"><option value="out" ${existingItem?.type==='out'?'selected':''}>Расход</option><option value="in" ${existingItem?.type==='in'?'selected':''}>Доход</option></select>`;
     }
     html += `<select id="m-repeat">
@@ -240,6 +240,15 @@ function openModal(type, existingItem = null) {
     
     list.innerHTML = html;
     document.getElementById('modal-save-btn').onclick = () => saveItem(type, existingItem?.id);
+    
+    // Explicit focus for mobile keyboards
+    setTimeout(() => {
+        const input = document.getElementById('m-name');
+        if(input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        }
+    }, 300);
 }
 
 function saveItem(type, existingId) {
@@ -281,9 +290,21 @@ function closeModal() {
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
     await Storage.init();
+    
     document.getElementById('btn-add-habit').onclick = () => openModal('habit');
     document.getElementById('btn-add-task').onclick = () => openModal('task');
     document.getElementById('btn-add-finance').onclick = () => openModal('finance');
-    document.getElementById('modal-overlay').onclick = closeModal;
+    
+    // Fix: Clicking inside the sheet should NOT close it
+    document.getElementById('modal-sheet').onclick = (e) => e.stopPropagation();
+    
+    // Clicking the overlay directly SHOULD close it
+    document.getElementById('modal-overlay').onclick = (e) => {
+        if(e.target.id === 'modal-overlay') closeModal();
+    };
+
+    document.getElementById('quote-text').textContent = "Всё начинается с одного шага.";
+    document.getElementById('quote-author').textContent = "— Лао-цзы";
+
     showPage('dashboard');
 });
