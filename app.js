@@ -52,16 +52,18 @@ const Storage={
     async loadCloud(){
         return new Promise(res=>{
             this.tg.CloudStorage.getItem('zc5',(e,v)=>{
-                if(!e&&v){
-                    try{const c=JSON.parse(v);AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})}}catch(x){}
+                let c; try{ c = v ? JSON.parse(v) : null; }catch(x){}
+                // Если zc5 существует и там БОЛЬШЕ 5 привычек (значит это не ошибка дефолта)
+                if(c && c.habits && c.habits.length > 5){
+                    AppState.habits=c.habits;AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})};
                     const now=new Date(),cm=formatDate(now).slice(0,7),pm=new Date(now.getFullYear(),now.getMonth()-1,1),pmk=formatDate(pm).slice(0,7);
                     let loaded=0;const done=()=>{loaded++;if(loaded>=2)res()};
                     [cm,pmk].forEach(m=>{this.tg.CloudStorage.getItem('zr_'+m,(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} done()})});
                 } else {
-                    // Cloud Migration from older versions
+                    // Cloud Migration: загружаем старые резервные копии из облака
                     this.tg.CloudStorage.getItem('zc',(e1,v1)=>{
                         if(!e1&&v1){
-                            try{const c=JSON.parse(v1);AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})}}catch(x){}
+                            try{const c2=JSON.parse(v1);AppState.habits=c2.habits||[];AppState.tasks=c2.tasks||[];AppState.finances=c2.finances||[];AppState.settings={...AppState.settings,...(c2.settings||{})}}catch(x){}
                             this.tg.CloudStorage.getItem('zr',(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} res()});
                         } else {
                             this.tg.CloudStorage.getItem('zen_v4',(e3,v3)=>{
