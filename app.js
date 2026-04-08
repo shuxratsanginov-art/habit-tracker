@@ -46,12 +46,25 @@ const Storage={
     async loadCloud(){
         return new Promise(res=>{
             this.tg.CloudStorage.getItem('zc5',(e,v)=>{
-                if(!e&&v)try{const c=JSON.parse(v);AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})}}catch(x){}
-                // Load current + prev month records
-                const now=new Date(),cm=formatDate(now).slice(0,7);
-                const pm=new Date(now.getFullYear(),now.getMonth()-1,1);const pmk=formatDate(pm).slice(0,7);
-                let loaded=0;const done=()=>{loaded++;if(loaded>=2)res()};
-                [cm,pmk].forEach(m=>{this.tg.CloudStorage.getItem('zr_'+m,(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} done()})});
+                if(!e&&v){
+                    try{const c=JSON.parse(v);AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})}}catch(x){}
+                    const now=new Date(),cm=formatDate(now).slice(0,7),pm=new Date(now.getFullYear(),now.getMonth()-1,1),pmk=formatDate(pm).slice(0,7);
+                    let loaded=0;const done=()=>{loaded++;if(loaded>=2)res()};
+                    [cm,pmk].forEach(m=>{this.tg.CloudStorage.getItem('zr_'+m,(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} done()})});
+                } else {
+                    // Cloud Migration from older versions
+                    this.tg.CloudStorage.getItem('zc',(e1,v1)=>{
+                        if(!e1&&v1){
+                            try{const c=JSON.parse(v1);AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})}}catch(x){}
+                            this.tg.CloudStorage.getItem('zr',(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} res()});
+                        } else {
+                            this.tg.CloudStorage.getItem('zen_v4',(e3,v3)=>{
+                                if(!e3&&v3){try{Object.assign(AppState,JSON.parse(v3))}catch(x){} res()}
+                                else this.tg.CloudStorage.getItem('zen_data_v3',(e4,v4)=>{if(!e4&&v4)try{Object.assign(AppState,JSON.parse(v4))}catch(x){} res()});
+                            });
+                        }
+                    });
+                }
             });
         });
     }
