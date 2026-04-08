@@ -16,7 +16,11 @@
     <header class="zen-header">
         <div class="zen-title-row">
             <h1 id="page-title">Сегодня</h1>
-            <div id="header-time" style="font-weight:700;font-size:14px;opacity:.8;letter-spacing:1px">00:00</div>
+            <div style="display:flex;gap:10px;align-items:center">
+                <button class="hdr-btn" onclick="openPomodoro()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6M22 6l-3-3"/></svg></button>
+                <button class="hdr-btn" onclick="openSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+                <div id="header-time" style="font-weight:700;font-size:14px;opacity:.8;letter-spacing:1px">00:00</div>
+            </div>
         </div>
         <div id="week-strip" class="week-strip"></div>
     </header>
@@ -28,14 +32,19 @@
                 <span id="score-main" class="score-main">0%</span>
                 <span class="score-label">Пульс Продуктивности</span>
                 <div style="display:flex;justify-content:center;gap:24px;margin-top:32px">
-                    <div><div id="h-count" style="font-size:18px;font-weight:800;color:var(--accent-primary)">0/0</div><div class="sl">Привычки</div></div>
-                    <div style="width:1px;height:24px;background:var(--card-border)"></div>
-                    <div><div id="t-count" style="font-size:18px;font-weight:800;color:var(--accent-secondary)">0/0</div><div class="sl">Задачи</div></div>
+                    <div><div id="h-count" style="font-size:18px;font-weight:800;color:var(--pri)">0/0</div><div class="sl">Привычки</div></div>
+                    <div style="width:1px;height:24px;background:var(--border)"></div>
+                    <div><div id="t-count" style="font-size:18px;font-weight:800;color:var(--sec)">0/0</div><div class="sl">Задачи</div></div>
                 </div>
             </div></div>
+            <!-- AI INSIGHT -->
+            <div id="ai-box" class="ai-card" style="display:none"><div style="flex:1"><div class="sl" style="color:var(--pri);margin-bottom:4px">ZEN ИНСАЙТ</div><p id="ai-text" style="font-size:13px;line-height:1.5;color:var(--text2)"></p></div></div>
+            <!-- MONTH CALENDAR GRID -->
+            <div style="padding:0 20px 16px"><h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Календарь</h3><div id="cal-grid" class="cal-grid"></div></div>
+            <!-- QUOTE -->
             <div style="padding:0 20px 40px;text-align:center">
                 <p id="quote-text" style="font-size:15px;opacity:.5;line-height:1.6"></p>
-                <div id="quote-author" style="font-size:10px;font-weight:800;color:var(--accent-primary);margin-top:12px;text-transform:uppercase;letter-spacing:1px"></div>
+                <div id="quote-author" style="font-size:10px;font-weight:800;color:var(--pri);margin-top:12px;text-transform:uppercase;letter-spacing:1px"></div>
             </div>
         </section>
 
@@ -45,6 +54,7 @@
                 <button class="btn-add" id="btn-add-habit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
             <div id="habits-list" class="stack-list"></div>
+            <div id="habits-archive" style="display:none;padding:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:12px">Архив</h3><div id="habits-arch-list" class="stack-list"></div></div>
         </section>
 
         <!-- TASKS -->
@@ -53,6 +63,7 @@
                 <button class="btn-add green" id="btn-add-task"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
             <div id="tasks-list" class="stack-list"></div>
+            <div id="tasks-archive" style="display:none;padding:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:12px">Архив</h3><div id="tasks-arch-list" class="stack-list"></div></div>
         </section>
 
         <!-- FINANCE -->
@@ -61,19 +72,21 @@
                 <button class="btn-add gold" id="btn-add-finance"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
             <div class="pulse-card" style="margin:0 20px 24px;padding:24px;border-radius:28px">
-                <span id="balance-total" class="score-main" style="font-size:36px;color:var(--accent-gold)">0</span>
+                <span id="balance-total" class="score-main" style="font-size:36px;color:var(--gold)">0</span>
                 <span class="score-label" style="display:block;margin-top:4px">Баланс (UZS)</span>
                 <div style="display:flex;justify-content:space-between;margin-top:24px">
-                    <div><div id="bal-in" style="font-size:16px;font-weight:800;color:var(--accent-secondary)">0</div><div class="sl">Доходы</div></div>
-                    <div><div id="bal-out" style="font-size:16px;font-weight:800;color:var(--accent-pink)">0</div><div class="sl">Расходы</div></div>
+                    <div><div id="bal-in" style="font-size:16px;font-weight:800;color:var(--sec)">0</div><div class="sl">Доходы</div></div>
+                    <div><div id="bal-out" style="font-size:16px;font-weight:800;color:var(--pink)">0</div><div class="sl">Расходы</div></div>
                 </div>
             </div>
             <div id="finance-list" class="stack-list"></div>
-            <!-- PIE CHART -->
+            <!-- BUDGET LIMITS -->
+            <div id="budget-limits" style="padding:20px"></div>
+            <!-- PIE -->
             <div style="padding:24px 20px 40px;text-align:center">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                     <button class="nav-btn" id="fin-prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
-                    <h3 id="fin-month" style="font-size:16px;font-weight:700">Расходы за месяц</h3>
+                    <h3 id="fin-month" style="font-size:16px;font-weight:700"></h3>
                     <button class="nav-btn" id="fin-next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
                 </div>
                 <svg id="pie-chart" viewBox="0 0 100 100" width="200" height="200" style="margin:0 auto;display:block"></svg>
@@ -89,39 +102,38 @@
                 <div id="ref-date" style="font-weight:700;font-size:16px"></div>
                 <button class="nav-btn" id="ref-next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
             </div>
+            <!-- MOOD GRAPH -->
+            <div style="padding:0 20px 20px"><h3 style="font-size:14px;font-weight:700;margin-bottom:10px">Настроение за 14 дней</h3><svg id="mood-graph" viewBox="0 0 300 80" width="100%" height="80" style="display:block"></svg></div>
             <div class="reflect-block" style="padding:0 20px 20px">
-                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Утренняя рефлексия</span></div>
+                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Утро</span></div>
                 <div class="reflect-card">
-                    <label class="rq">Что для меня главное сегодня?</label>
-                    <textarea id="ref-am-main" class="ri" rows="2" placeholder="Моя главная цель..."></textarea>
-                    <label class="rq">Настроение</label>
-                    <div class="mood-picker"><button type="button" class="mood-btn" data-val="1">1</button><button type="button" class="mood-btn" data-val="2">2</button><button type="button" class="mood-btn" data-val="3">3</button><button type="button" class="mood-btn" data-val="4">4</button><button type="button" class="mood-btn" data-val="5">5</button></div>
-                    <label class="rq">За что я благодарен?</label>
-                    <textarea id="ref-am-grateful" class="ri" rows="2" placeholder="3 вещи..."></textarea>
+                    <label class="rq">Что для меня главное сегодня?</label><textarea id="ref-am-main" class="ri" rows="2" placeholder="Главная цель..."></textarea>
+                    <label class="rq">Настроение</label><div class="mood-picker"><button type="button" class="mood-btn" data-val="1">1</button><button type="button" class="mood-btn" data-val="2">2</button><button type="button" class="mood-btn" data-val="3">3</button><button type="button" class="mood-btn" data-val="4">4</button><button type="button" class="mood-btn" data-val="5">5</button></div>
+                    <label class="rq">Благодарность</label><textarea id="ref-am-grateful" class="ri" rows="2" placeholder="3 вещи..."></textarea>
                 </div>
             </div>
             <div class="reflect-block" style="padding:0 20px 20px">
-                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span>Вечерняя рефлексия</span></div>
+                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span>Вечер</span></div>
                 <div class="reflect-card">
                     <label class="rq">Что прошло хорошо?</label><textarea id="ref-pm-good" class="ri" rows="2" placeholder="Достижения..."></textarea>
-                    <label class="rq">Что можно улучшить?</label><textarea id="ref-pm-improve" class="ri" rows="2" placeholder="Что изменить..."></textarea>
-                    <label class="rq">Чему я научился?</label><textarea id="ref-pm-learned" class="ri" rows="2" placeholder="Уроки дня..."></textarea>
+                    <label class="rq">Что улучшить?</label><textarea id="ref-pm-improve" class="ri" rows="2" placeholder="Что изменить..."></textarea>
+                    <label class="rq">Чему научился?</label><textarea id="ref-pm-learned" class="ri" rows="2" placeholder="Уроки..."></textarea>
                 </div>
             </div>
-            <button class="btn-primary" style="margin:0 20px 40px;width:calc(100% - 40px)" id="btn-save-reflect">Сохранить записи</button>
+            <button class="btn-primary" style="margin:0 20px 40px;width:calc(100% - 40px)" id="btn-save-reflect">Сохранить</button>
         </section>
     </main>
 
     <!-- NAV -->
     <nav class="zen-tabs">
-        <a href="#" class="tab-item active" onclick="showPage('dashboard',event)"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span>Пульс</span></a>
-        <a href="#" class="tab-item" onclick="showPage('habits',event)"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span>Цели</span></a>
-        <a href="#" class="tab-item" onclick="showPage('tasks',event)"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Дела</span></a>
-        <a href="#" class="tab-item" onclick="showPage('finance',event)"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg></span><span>Бюджет</span></a>
-        <a href="#" class="tab-item" onclick="showPage('reflect',event)"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span><span>Дневник</span></a>
+        <a href="#" class="tab-item active" onclick="showPage('dashboard',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span>Пульс</span></a>
+        <a href="#" class="tab-item" onclick="showPage('habits',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span>Цели</span></a>
+        <a href="#" class="tab-item" onclick="showPage('tasks',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Дела</span></a>
+        <a href="#" class="tab-item" onclick="showPage('finance',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg></span><span>Бюджет</span></a>
+        <a href="#" class="tab-item" onclick="showPage('reflect',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span><span>Дневник</span></a>
     </nav>
 
-    <!-- MODAL -->
+    <!-- MODAL: CRUD -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-sheet" id="modal-sheet">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
@@ -132,24 +144,48 @@
             <div id="m-finance-fields" style="display:none">
                 <input type="number" id="m-amount" placeholder="Сумма (сум)" autocomplete="off">
                 <select id="m-type"><option value="out">Расход</option><option value="in">Доход</option></select>
-                <select id="m-category">
-                    <option value="Еда">Еда</option><option value="Транспорт">Транспорт</option>
-                    <option value="Жильё">Жильё</option><option value="Развлечения">Развлечения</option>
-                    <option value="Связь">Связь</option><option value="Здоровье">Здоровье</option>
-                    <option value="Одежда">Одежда</option><option value="Образование">Образование</option>
-                    <option value="Подписки">Подписки</option><option value="Другое">Другое</option>
-                </select>
+                <select id="m-category"><option value="Еда">Еда</option><option value="Транспорт">Транспорт</option><option value="Жильё">Жильё</option><option value="Развлечения">Развлечения</option><option value="Связь">Связь</option><option value="Здоровье">Здоровье</option><option value="Одежда">Одежда</option><option value="Образование">Образование</option><option value="Подписки">Подписки</option><option value="Другое">Другое</option></select>
             </div>
-            <select id="m-repeat">
-                <option value="none">Только этот день</option>
-                <option value="daily">Каждый день</option>
-                <option value="weekdays">По дням недели</option>
-                <option value="monthly">Раз в месяц</option>
-            </select>
-            <div id="m-weekdays" class="weekday-picker" style="display:none">
-                <button type="button" class="wd-btn" data-day="1">ПН</button><button type="button" class="wd-btn" data-day="2">ВТ</button><button type="button" class="wd-btn" data-day="3">СР</button><button type="button" class="wd-btn" data-day="4">ЧТ</button><button type="button" class="wd-btn" data-day="5">ПТ</button><button type="button" class="wd-btn" data-day="6">СБ</button><button type="button" class="wd-btn" data-day="7">ВС</button>
+            <div id="m-priority-field" style="display:none">
+                <select id="m-priority"><option value="high">Высокий приоритет</option><option value="med">Средний</option><option value="low">Низкий</option></select>
             </div>
+            <select id="m-repeat"><option value="none">Только этот день</option><option value="daily">Каждый день</option><option value="weekdays">По дням недели</option><option value="monthly">Раз в месяц</option></select>
+            <div id="m-weekdays" class="weekday-picker" style="display:none"><button type="button" class="wd-btn" data-day="1">ПН</button><button type="button" class="wd-btn" data-day="2">ВТ</button><button type="button" class="wd-btn" data-day="3">СР</button><button type="button" class="wd-btn" data-day="4">ЧТ</button><button type="button" class="wd-btn" data-day="5">ПТ</button><button type="button" class="wd-btn" data-day="6">СБ</button><button type="button" class="wd-btn" data-day="7">ВС</button></div>
             <button class="btn-primary" id="modal-save-btn">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- MODAL: POMODORO -->
+    <div class="modal-overlay" id="pomo-overlay">
+        <div class="modal-sheet" id="pomo-sheet">
+            <div style="text-align:center;padding:20px 0">
+                <h2 style="font-size:22px;font-weight:900;margin-bottom:24px">Помодоро</h2>
+                <svg id="pomo-ring" viewBox="0 0 120 120" width="180" height="180" style="margin:0 auto;display:block">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="6"/>
+                    <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" stroke="var(--pri)" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                </svg>
+                <div id="pomo-time" style="font-size:48px;font-weight:900;margin-top:-110px;position:relative">25:00</div>
+                <div id="pomo-label" style="font-size:12px;color:var(--text2);margin-top:60px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Фокус</div>
+                <div style="display:flex;gap:12px;justify-content:center;margin-top:24px">
+                    <button class="btn-primary" style="width:auto;padding:14px 32px" id="pomo-start">Старт</button>
+                    <button class="nav-btn" style="padding:14px 20px" id="pomo-reset">Сброс</button>
+                </div>
+                <button class="nav-btn" style="margin-top:16px;width:100%" onclick="closePomodoro()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SETTINGS -->
+    <div class="modal-overlay" id="settings-overlay">
+        <div class="modal-sheet" id="settings-sheet">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                <h2 style="font-size:22px;font-weight:900">Настройки</h2>
+                <button class="modal-close-btn" onclick="closeSettings()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+            </div>
+            <div class="settings-row"><span>Тема</span><button class="nav-btn" id="btn-theme" onclick="toggleTheme()">Светлая</button></div>
+            <div class="settings-row"><span>Лимиты бюджета</span><button class="nav-btn" onclick="openLimitsEditor()">Настроить</button></div>
+            <div class="settings-row"><span>Экспорт данных</span><button class="nav-btn" onclick="exportData()">Скопировать</button></div>
+            <div style="text-align:center;margin-top:32px;color:var(--muted);font-size:11px">Zen Productivity Pro v5.0</div>
         </div>
     </div>
 </div>
