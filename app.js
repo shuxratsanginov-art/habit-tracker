@@ -28,7 +28,13 @@ const Storage={
         if(AppState.settings.theme==='light')document.body.classList.add('light');
         showPage('dashboard');
     },
-    migrate(){if(!localStorage.getItem('zen_v5')){['zen_v4','zen_pro_v3'].forEach(k=>{const d=localStorage.getItem(k);if(d)try{Object.assign(AppState,JSON.parse(d))}catch(e){}})}},
+    migrate(){
+        const v4=localStorage.getItem('zen_v4'), v3=localStorage.getItem('zen_pro_v3');
+        if(!localStorage.getItem('zen_v5') || AppState.habits.length <= 5){
+            if(v3)try{Object.assign(AppState,JSON.parse(v3))}catch(e){}
+            if(v4)try{Object.assign(AppState,JSON.parse(v4))}catch(e){}
+        }
+    },
     loadLocal(){const d=localStorage.getItem('zen_v5');if(d)try{Object.assign(AppState,JSON.parse(d))}catch(e){}},
     save(){
         localStorage.setItem('zen_v5',JSON.stringify(AppState));
