@@ -14,180 +14,126 @@
 <body>
 <div id="app">
     <header class="zen-header">
-        <div class="header-top">
-            <div class="greeting">
-                <span class="hello-text">Hello 👋</span>
-                <span class="name-text" id="user-name">User!</span>
-            </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="openPomodoro()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6M22 6l-3-3"/></svg></button>
-                <button class="icon-btn" onclick="openSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+        <div class="zen-title-row">
+            <h1 id="page-title">Сегодня</h1>
+            <div style="display:flex;gap:10px;align-items:center">
+                <button class="hdr-btn" onclick="openPomodoro()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6M22 6l-3-3"/></svg></button>
+                <button class="hdr-btn" onclick="openSettings()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+                <div id="header-time" style="font-weight:700;font-size:14px;opacity:.8;letter-spacing:1px">00:00</div>
             </div>
         </div>
+        <div id="week-strip" class="week-strip"></div>
     </header>
 
     <main>
-        <!-- PAGE: HOME (Dashboard) -->
-        <section id="page-dashboard" class="page active">
-            <div style="padding: 0 20px;">
-                <div class="report-card">
-                    <div class="rc-top">
-                        <div class="rc-date" id="rc-date-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span id="rc-date-text">12 Dec</span></div>
-                        <div class="rc-badge">AI-Report</div>
-                    </div>
-                    <div class="rc-title">Today's AI Analysis</div>
-                    <div class="rc-main">You Have <span id="rc-tasks-count">0</span><br>Tasks <span style="background:#fff;color:#000;font-size:10px;padding:2px 6px;border-radius:10px;vertical-align:middle;display:inline-flex;align-items:center;gap:2px">Urgent <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span> for Today.</div>
+        <!-- DASHBOARD -->
+        <section id="page-dashboard" class="page">
+            <div class="pulse-container"><div class="pulse-card">
+                <span id="score-main" class="score-main">0%</span>
+                <span class="score-label">Пульс Продуктивности</span>
+                <div style="display:flex;justify-content:center;gap:24px;margin-top:32px">
+                    <div><div id="h-count" style="font-size:18px;font-weight:800;color:var(--pri)">0/0</div><div class="sl">Привычки</div></div>
+                    <div style="width:1px;height:24px;background:var(--border)"></div>
+                    <div><div id="t-count" style="font-size:18px;font-weight:800;color:var(--sec)">0/0</div><div class="sl">Задачи</div></div>
                 </div>
+            </div></div>
+            <!-- AI INSIGHT -->
+            <div id="ai-box" class="ai-card" style="display:none"><div style="flex:1"><div class="sl" style="color:var(--pri);margin-bottom:4px">ZEN ИНСАЙТ</div><p id="ai-text" style="font-size:13px;line-height:1.5;color:var(--text2)"></p></div></div>
+            <!-- MONTH CALENDAR GRID -->
+            <div style="padding:0 20px 16px"><h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Календарь</h3><div id="cal-grid" class="cal-grid"></div></div>
+            <!-- QUOTE -->
+            <div style="padding:0 20px 40px;text-align:center">
+                <p id="quote-text" style="font-size:15px;opacity:.5;line-height:1.6"></p>
+                <div id="quote-author" style="font-size:10px;font-weight:800;color:var(--pri);margin-top:12px;text-transform:uppercase;letter-spacing:1px"></div>
             </div>
-
-            <div class="dash-grid">
-                <div class="card-green">
-                    <div class="pt-title">Priority Task</div>
-                    <div id="priority-task-list"></div>
-                </div>
-                <div class="stat-card">
-                    <div class="card-solid" style="flex:1">
-                        <div class="stat-row">
-                            <div class="stat-pct" id="g-score">0%</div>
-                            <div class="stat-lbl" id="g-done-txt">Completed<br>0/0 task</div>
-                        </div>
-                        <div class="bar-chart" id="g-bars">
-                            <div class="b-bar" style="height:30%"></div>
-                            <div class="b-bar" style="height:50%"></div>
-                            <div class="b-bar" style="height:100%"></div>
-                            <div class="b-bar" style="height:70%"></div>
-                            <div class="b-bar" style="height:20%"></div>
-                            <div class="b-bar" style="height:40%"></div>
-                        </div>
-                    </div>
-                    <div class="card-solid" style="padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--card-light-green)" stroke-width="3"><circle cx="12" cy="12" r="10" stroke-dasharray="2 4"/><circle cx="12" cy="12" r="4" fill="var(--card-light-green)"/></svg>
-                        <div>
-                            <div style="font-size:12px;font-weight:700">In Progress</div>
-                            <div style="font-size:10px;color:var(--text2)" id="g-prog-txt">0 task</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sec-head">
-                <div class="sec-title">All Tasks</div>
-                <a href="#" class="sec-link" onclick="showPage('tasks',event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-            </div>
-            
-            <div class="task-list" id="home-task-list"></div>
         </section>
 
-        <!-- PAGE: TASKS -->
-        <section id="page-tasks" class="page">
-            <div class="sec-head" style="justify-content: center; position: relative;">
-                <button class="icon-btn" style="position:absolute;left:20px" onclick="showPage('dashboard',event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-                <div class="sec-title">All Tasks</div>
+        <!-- HABITS -->
+        <section id="page-habits" class="page" style="display:none">
+            <div class="section-header"><h2>Привычки</h2>
+                <button class="btn-add" id="btn-add-habit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
-            <div style="padding: 10px 20px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div class="sec-title" style="font-size:16px;">Top priority</div>
-                <div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px" id="tasks-count-lbl">0 Task <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-            </div>
-            <div class="task-list" id="tasks-list"></div>
+            <div id="habits-list" class="stack-list"></div>
+            <div id="habits-archive" style="display:none;padding:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:12px">Архив</h3><div id="habits-arch-list" class="stack-list"></div></div>
         </section>
 
-        <!-- PAGE: STATS / JOURNAL (Performance Analysis) -->
-        <section id="page-stats" class="page">
-            <div class="sec-head" style="justify-content: center;">
-                <div class="sec-title">Analytics</div>
+        <!-- TASKS -->
+        <section id="page-tasks" class="page" style="display:none">
+            <div class="section-header"><h2>Задачи</h2>
+                <button class="btn-add green" id="btn-add-task"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
-            <div class="sphere-box">
-                <div class="sphere"></div>
-            </div>
-            <div style="text-align:center; font-size:12px; color:var(--text2); margin-bottom: 20px;">Taskify, AI powered analysis</div>
-            
-            <div class="card-solid" style="margin: 0 20px 24px; text-align: left;">
-                <div class="rc-top">
-                    <div>
-                        <div style="font-size:16px;font-weight:700">Performance Analysis</div>
-                        <div style="font-size:11px;color:var(--text2)">Total task completion</div>
-                    </div>
-                    <div class="rc-badge" style="border:1px solid var(--border);background:none">AI-Report</div>
-                </div>
-                
-                <div class="gauge-wrap">
-                    <!-- viewBox tailored for a semi-circle -->
-                    <svg viewBox="0 0 200 100" style="width:100%;height:100%">
-                        <!-- BG -->
-                        <path class="gauge-bg" d="M 20 90 A 80 80 0 0 1 180 90" />
-                        <!-- Progs (Todo, Prog, Done stacked) -->
-                        <path class="gauge-prog todo" d="M 20 90 A 80 80 0 0 1 180 90" stroke-dasharray="251.2" stroke-dashoffset="0"/>
-                        <path class="gauge-prog prog" id="g-arc-prog" d="M 20 90 A 80 80 0 0 1 180 90" stroke-dasharray="251.2" stroke-dashoffset="100"/>
-                        <path class="gauge-prog done" id="g-arc-done" d="M 20 90 A 80 80 0 0 1 180 90" stroke-dasharray="251.2" stroke-dashoffset="200"/>
-                    </svg>
-                    <div class="g-info">
-                        <div class="g-pct" id="g-big-pct">0%</div>
-                        <div class="g-lbl">Task Completed</div>
-                    </div>
-                </div>
-                
-                <div style="display:flex;justify-content:center;gap:16px;margin-top:20px;font-size:10px;font-weight:600">
-                    <div style="display:flex;align-items:center;gap:4px"><div class="t-tag-dot" style="background:var(--card-blue)"></div> Done</div>
-                    <div style="display:flex;align-items:center;gap:4px"><div class="t-tag-dot" style="background:var(--card-cyan)"></div> In progress</div>
-                    <div style="display:flex;align-items:center;gap:4px"><div class="t-tag-dot" style="background:var(--high-bg)"></div> To do</div>
-                </div>
-            </div>
-
-            <div class="color-grid" id="finance-list">
-                <!-- Color cards go here -->
-            </div>
-            
-            <div style="padding:0 20px 40px"><button class="btn-primary" style="background:var(--surface);border:1px solid var(--border);color:#fff" onclick="openModal('finance')">Manage Budget limits</button></div>
+            <div id="tasks-list" class="stack-list"></div>
+            <div id="tasks-archive" style="display:none;padding:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:12px">Архив</h3><div id="tasks-arch-list" class="stack-list"></div></div>
         </section>
 
-        <!-- PAGE: CALENDAR / REFLECT -->
-        <section id="page-reflect" class="page">
-            <div class="sec-head" style="justify-content: center;">
-                <div class="sec-title" id="ref-date-title">Journal</div>
+        <!-- FINANCE -->
+        <section id="page-finance" class="page" style="display:none">
+            <div class="section-header"><h2>Бюджет</h2>
+                <button class="btn-add gold" id="btn-add-finance"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg></button>
             </div>
-            <div style="padding:0 20px"><div id="cal-grid" class="dash-grid card-solid" style="display:grid;grid-template-columns:repeat(7,1fr);padding:16px;gap:8px;margin-bottom:20px;width:auto"></div></div>
-            
-            <div style="padding: 0 20px 20px;">
-                <div class="card-solid" style="margin-bottom: 12px">
-                    <label class="rq">Mood (1-5)</label>
-                    <div class="mood-picker"><button type="button" class="mood-btn" data-val="1">1</button><button type="button" class="mood-btn" data-val="2">2</button><button type="button" class="mood-btn" data-val="3">3</button><button type="button" class="mood-btn" data-val="4">4</button><button type="button" class="mood-btn" data-val="5">5</button></div>
-                    <label class="rq">Morning Gratitude</label><textarea id="ref-am-grateful" class="ri" rows="2" placeholder="3 things..."></textarea>
+            <div class="pulse-card" style="margin:0 20px 24px;padding:24px;border-radius:28px">
+                <span id="balance-total" class="score-main" style="font-size:36px;color:var(--gold)">0</span>
+                <span class="score-label" style="display:block;margin-top:4px">Баланс (UZS)</span>
+                <div style="display:flex;justify-content:space-between;margin-top:24px">
+                    <div><div id="bal-in" style="font-size:16px;font-weight:800;color:var(--sec)">0</div><div class="sl">Доходы</div></div>
+                    <div><div id="bal-out" style="font-size:16px;font-weight:800;color:var(--pink)">0</div><div class="sl">Расходы</div></div>
                 </div>
-                <div class="card-solid">
-                    <label class="rq">Evening Review</label><textarea id="ref-pm-good" class="ri" rows="2" placeholder="What went well..."></textarea>
-                </div>
-                <button class="btn-primary" style="margin-top:20px" id="btn-save-reflect">Save Journal</button>
             </div>
+            <div id="finance-list" class="stack-list"></div>
+            <!-- BUDGET LIMITS -->
+            <div id="budget-limits" style="padding:20px"></div>
+            <!-- PIE -->
+            <div style="padding:24px 20px 40px;text-align:center">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <button class="nav-btn" id="fin-prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+                    <h3 id="fin-month" style="font-size:16px;font-weight:700"></h3>
+                    <button class="nav-btn" id="fin-next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+                </div>
+                <svg id="pie-chart" viewBox="0 0 100 100" width="200" height="200" style="margin:0 auto;display:block"></svg>
+                <div id="pie-legend" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px"></div>
+            </div>
+        </section>
+
+        <!-- JOURNAL -->
+        <section id="page-reflect" class="page" style="display:none">
+            <div class="section-header"><h2>Дневник</h2></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px">
+                <button class="nav-btn" id="ref-prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+                <div id="ref-date" style="font-weight:700;font-size:16px"></div>
+                <button class="nav-btn" id="ref-next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+            <!-- MOOD GRAPH -->
+            <div style="padding:0 20px 20px"><h3 style="font-size:14px;font-weight:700;margin-bottom:10px">Настроение за 14 дней</h3><svg id="mood-graph" viewBox="0 0 300 80" width="100%" height="80" style="display:block"></svg></div>
+            <div class="reflect-block" style="padding:0 20px 20px">
+                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Утро</span></div>
+                <div class="reflect-card">
+                    <label class="rq">Что для меня главное сегодня?</label><textarea id="ref-am-main" class="ri" rows="2" placeholder="Главная цель..."></textarea>
+                    <label class="rq">Настроение</label><div class="mood-picker"><button type="button" class="mood-btn" data-val="1">1</button><button type="button" class="mood-btn" data-val="2">2</button><button type="button" class="mood-btn" data-val="3">3</button><button type="button" class="mood-btn" data-val="4">4</button><button type="button" class="mood-btn" data-val="5">5</button></div>
+                    <label class="rq">Благодарность</label><textarea id="ref-am-grateful" class="ri" rows="2" placeholder="3 вещи..."></textarea>
+                </div>
+            </div>
+            <div class="reflect-block" style="padding:0 20px 20px">
+                <div class="reflect-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span>Вечер</span></div>
+                <div class="reflect-card">
+                    <label class="rq">Что прошло хорошо?</label><textarea id="ref-pm-good" class="ri" rows="2" placeholder="Достижения..."></textarea>
+                    <label class="rq">Что улучшить?</label><textarea id="ref-pm-improve" class="ri" rows="2" placeholder="Что изменить..."></textarea>
+                    <label class="rq">Чему научился?</label><textarea id="ref-pm-learned" class="ri" rows="2" placeholder="Уроки..."></textarea>
+                </div>
+            </div>
+            <button class="btn-primary" style="margin:0 20px 40px;width:calc(100% - 40px)" id="btn-save-reflect">Сохранить</button>
         </section>
     </main>
 
-    <!-- FLOATING ACTION BUTTON & POPUP -->
-    <div class="fab-menu-overlay" id="fab-overlay">
-        <div class="fab-menu">
-            <button class="fm-btn" onclick="openModal('habit')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--card-light-green)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/></svg> Add Goal</button>
-            <button class="fm-btn" onclick="openModal('task')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--card-blue)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> Add Task</button>
-            <button class="fm-btn" onclick="openModal('finance')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--high-bg)" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg> Add Expense</button>
-        </div>
-    </div>
-    
-    <div class="fab-wrapper">
-        <button class="fab" id="main-fab" onclick="toggleFabMenu()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-    </div>
-
-    <!-- CURVED BOTTOM NAV -->
-    <nav class="bottom-nav">
-        <!-- SVG background approach for perfect curved cutout -->
-        <div class="nav-bg"></div>
-        <div class="nav-items">
-            <button class="n-item active" data-target="dashboard" onclick="showPage('dashboard',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
-            <button class="n-item" data-target="reflect" onclick="showPage('reflect',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
-            <div class="n-center-spacer"></div>
-            <button class="n-item" data-target="stats" onclick="showPage('stats',event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
-            <button class="n-item" onclick="openSettings()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-        </div>
+    <!-- NAV -->
+    <nav class="zen-tabs">
+        <a href="#" class="tab-item active" onclick="showPage('dashboard',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span><span>Пульс</span></a>
+        <a href="#" class="tab-item" onclick="showPage('habits',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span>Цели</span></a>
+        <a href="#" class="tab-item" onclick="showPage('tasks',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span>Дела</span></a>
+        <a href="#" class="tab-item" onclick="showPage('finance',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg></span><span>Бюджет</span></a>
+        <a href="#" class="tab-item" onclick="showPage('reflect',event)"><span class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span><span>Дневник</span></a>
     </nav>
 
-    <!-- MODAL: CRUD (REUSED) -->
+    <!-- MODAL: CRUD -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-sheet" id="modal-sheet">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
@@ -211,20 +157,20 @@
 
     <!-- MODAL: POMODORO -->
     <div class="modal-overlay" id="pomo-overlay">
-        <!-- Reusing old structure but with new CSS classes applied automatically -->
         <div class="modal-sheet" id="pomo-sheet">
             <div style="text-align:center;padding:20px 0">
                 <h2 style="font-size:22px;font-weight:900;margin-bottom:24px">Помодоро</h2>
                 <svg id="pomo-ring" viewBox="0 0 120 120" width="180" height="180" style="margin:0 auto;display:block">
                     <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="6"/>
-                    <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" stroke="var(--primary)" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                    <circle id="pomo-progress" cx="60" cy="60" r="52" fill="none" stroke="var(--pri)" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
                 </svg>
                 <div id="pomo-time" style="font-size:48px;font-weight:900;margin-top:-110px;position:relative">25:00</div>
                 <div id="pomo-label" style="font-size:12px;color:var(--text2);margin-top:60px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Фокус</div>
                 <div style="display:flex;gap:12px;justify-content:center;margin-top:24px">
                     <button class="btn-primary" style="width:auto;padding:14px 32px" id="pomo-start">Старт</button>
-                    <button class="fm-btn" style="padding:14px 20px" id="pomo-reset">Сброс</button>
+                    <button class="nav-btn" style="padding:14px 20px" id="pomo-reset">Сброс</button>
                 </div>
+                <button class="nav-btn" style="margin-top:16px;width:100%" onclick="closePomodoro()">Закрыть</button>
             </div>
         </div>
     </div>
@@ -236,8 +182,10 @@
                 <h2 style="font-size:22px;font-weight:900">Настройки</h2>
                 <button class="modal-close-btn" onclick="closeSettings()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
             </div>
-            <div class="settings-row" style="padding:16px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>Экспорт данных</span><button class="fm-btn" style="padding:8px 12px" onclick="exportData()">Скопировать</button></div>
-            <div style="text-align:center;margin-top:32px;color:var(--muted);font-size:11px">Taskify Tracker Pro v6.0</div>
+            <div class="settings-row"><span>Тема</span><button class="nav-btn" id="btn-theme" onclick="toggleTheme()">Светлая</button></div>
+            <div class="settings-row"><span>Лимиты бюджета</span><button class="nav-btn" onclick="openLimitsEditor()">Настроить</button></div>
+            <div class="settings-row"><span>Экспорт данных</span><button class="nav-btn" onclick="exportData()">Скопировать</button></div>
+            <div style="text-align:center;margin-top:32px;color:var(--muted);font-size:11px">Zen Productivity Pro v5.0</div>
         </div>
     </div>
 </div>
