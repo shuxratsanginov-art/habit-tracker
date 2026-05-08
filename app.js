@@ -7,33 +7,60 @@ const IC={meditation:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 const CAT_COL={'Еда':'#f43f5e','Транспорт':'#6366f1','Жильё':'#f59e0b','Развлечения':'#8b5cf6','Связь':'#06b6d4','Здоровье':'#10b981','Одежда':'#ec4899','Образование':'#3b82f6','Подписки':'#a855f7','Другое':'#64748b'};
 const QUOTES=[
     ['Всё начинается с одного шага.', 'Лао-цзы'],
-    ['Следите за своими мыслями — ибо обращаются они в слова, слова в действия, а действия уже в привычки. Берегитесь привычек, ибо они формируют свой характер. Усмиряйте характер — ибо он становится судьбой. Что мы думаем — тем становимся.', 'Маргарет Тэтчер'],
+    ['Следите за своими мыслями — ибо обращаются они в слова...', 'Маргарет Тэтчер'],
     ['Дисциплина — мост между целями и результатом.', 'Джим Рон'],
     ['Мы — то, что мы делаем постоянно. Совершенство — это не действие, а привычка.', 'Аристотель'],
     ['Сложнее всего начать действовать. Всё остальное зависит только от упорства.', 'Амелия Эрхарт'],
     ['Маленькие ежедневные улучшения в долгосрочной перспективе приносят ошеломляющие результаты.', 'Робин Шарма'],
     ['Успех — это сумма небольших усилий, повторяемых изо дня в день.', 'Роберт Кольер'],
     ['Любить то, что вы делаете — единственный способ сделать великое дело.', 'Стив Джобс'],
-    ['Лучшее время посадить дерево было 20 лет назад. Второе лучшее время — сейчас.', 'Китайская пословица'],
     ['Не считай дни — делай так, чтобы дни считались.', 'Мухаммед Али'],
     ['Фокусируйся на процессе, а не на результате. Результат придет сам.', 'Билл Уолш'],
-    ['Счастье не в том, чтобы делать всегда то, что хочешь, а в том, чтобы всегда хотеть того, что делаешь.', 'Лев Толстой'],
     ['Делай сегодня то, что другие не хотят — завтра будешь жить так, как другие не могут.', 'Джаред Лето'],
     ['Тишина — источник великой силы.', 'Лао-цзы'],
     ['Неудача — это просто возможность начать снова, но уже более мудро.', 'Генри Форд'],
-    ['Лидер — это тот, кто знает путь, идет по нему и показывает его другим.', 'Джон Максвелл'],
     ['Если вы не планируете свое время, кто-то другой сделает это за вас.', 'Тони Роббинс'],
-    ['Секрет того, как добиться успеха — начать действовать.', 'Марк Твен'],
     ['Мотивация заставляет вас начать. Привычка заставляет вас продолжать.', 'Джим Рюн'],
-    ['Вы не можете изменить свое будущее, но вы можете изменить свои привычки. А они уже изменят ваше будущее.', 'Абдул Калам'],
-    ['Будь как вода — гибким и сильным.', 'Брюс Ли'],
+    ['Вы не можете изменить свое будущее, но вы можете изменить свои привычки.', 'Абдул Калам'],
     ['Сильный человек — это не тот, кто может многое себе позволить, а тот, кто может от многого отказаться.', 'Александр Суворов'],
     ['Самый трудный шаг — это шаг за пределы привычного.', 'Неизвестный автор'],
-    ['Не пытайтесь стать успешным человеком, а лучше попытайтесь стать ценным человеком.', 'Альберт Эйнштейн']
+    ['Не пытайтесь стать успешным человеком, а лучше попытайтесь стать ценным человеком.', 'Альберт Эйнштейн'],
+    
+    // Японские мудрости (Кайдзен, Самураи, Дзен)
+    ['Упади семь раз, встань восемь (Nana korobi ya oki).', 'Японская пословица'],
+    ['Даже путь в тысячу ри начинается с одного шага.', 'Японская пословица'],
+    ['Кто торопится, тот ошибается.', 'Японская пословица'],
+    ['Если проблему можно решить, то не стоит о ней беспокоиться. Если её решить нельзя, то беспокоиться о ней бесполезно.', 'Японская пословица'],
+    ['Побеждает тот, кто умеет ждать.', 'Японская пословица'],
+    ['Не бойся немного согнуться, прямее выпрямишься.', 'Японская пословица'],
+    ['Холодный чай и холодный рис терпимы, но холодный взгляд и холодное слово — невыносимы.', 'Японская пословица'],
+    ['Совершенствование не имеет конца (Кайдзен).', 'Японская философия'],
+    ['Тот, кто улыбается, а не злится, всегда сильнее.', 'Японская пословица'],
+    ['Быстро — это медленно, но без перерывов.', 'Японская пословица'],
+    ['Лучше быть врагом хорошего человека, чем другом плохого.', 'Японская пословица'],
+    ['Никто не спотыкается, лёжа в постели.', 'Японская пословица'],
+    ['Сделай всё, что сможешь, а в остальном положись на судьбу.', 'Японская пословица'],
+    ['Видение без действия — это мечта. Действие без видения — это кошмар.', 'Японская пословица'],
+
+    // Мартин Медоуз ("365 дней самодисциплины")
+    ['Самодисциплина — это способность заставить себя делать то, что вы должны делать, когда вы должны это делать, независимо от того, хочется вам этого или нет.', 'Мартин Медоуз'],
+    ['Комфорт — враг величия. Рост происходит только тогда, когда вы выходите за пределы своей зоны комфорта.', 'Мартин Медоуз'],
+    ['Ваши привычки определяют вашу жизнь. Измените свои привычки, и вы измените свою жизнь.', 'Мартин Медоуз'],
+    ['Мотивация — это искра, а самодисциплина — это топливо, которое поддерживает огонь.', 'Мартин Медоуз'],
+    ['Не ждите идеального момента. Момента лучше, чем сейчас, не будет никогда.', 'Мартин Медоуз'],
+    ['Лучший способ предсказать свое будущее — создать его самому, шаг за шагом, день за днем.', 'Мартин Медоуз'],
+    ['Отказ от мгновенного удовольствия ради долгосрочной цели — это суть самодисциплины.', 'Мартин Медоуз'],
+    ['Успех не приходит в одночасье. Это результат бесчисленных часов тяжелой работы, преданности делу и самодисциплины.', 'Мартин Медоуз'],
+    ['Не бойтесь неудач. Рассматривайте их как ценные уроки на пути к успеху.', 'Мартин Медоуз'],
+    ['Ваш разум — это мощный инструмент. Научитесь контролировать свои мысли, и вы сможете контролировать свою жизнь.', 'Мартин Медоуз'],
+    ['Каждое принятое вами решение либо приближает вас к вашим целям, либо отдаляет от них.', 'Мартин Медоуз'],
+    ['Окружите себя людьми, которые вдохновляют вас стать лучше и поддерживают вас на пути к успеху.', 'Мартин Медоуз'],
+    ['Отмечайте свои победы, какими бы маленькими они ни были. Это поможет вам сохранить мотивацию.', 'Мартин Медоуз'],
+    ['Никогда не сдавайтесь. Самые большие прорывы часто происходят сразу после того, как вы хотели все бросить.', 'Мартин Медоуз']
 ];
 
-const AppState={settings:{currency:'сум',theme:'dark',budgetLimits:{}},habits:[],tasks:[],finances:[],records:{},selectedDate:getLocalDate()};
-let currentPage='dashboard',pieMonth=null;
+const AppState={settings:{currency:'сум',theme:'dark',pomo:{focus:25,short:5,long:15,sessions:0},budgetLimits:{}},habits:[],tasks:[],finances:[],records:{},selectedDate:getLocalDate()};
+let currentPage='dashboard',pieMonth=null,stripBaseDate=new Date();
 
 // HAPTIC
 function haptic(type){try{Telegram.WebApp.HapticFeedback[type.includes('.')?'notificationOccurred':'impactOccurred'](type.replace('.',''))}catch(e){}}
@@ -45,12 +72,15 @@ const Storage={
         if(this.tg?.initData){this.tg.ready();this.tg.expand();await this.loadCloud()}
         else this.loadLocal();
         this.migrate();
+        migrateTasks(); // Авто-перенос задач
         if(!AppState.habits.length){
             AppState.habits=[{id:'h1',name:'Медитация',icon:'meditation',repeat:{type:'daily',value:[]}},{id:'h2',name:'Чтение',icon:'book',repeat:{type:'daily',value:[]}},{id:'h3',name:'Тренировка',icon:'workout',repeat:{type:'daily',value:[]}},{id:'h4',name:'Саморефлексия (Утро)',icon:'sun',repeat:{type:'daily',value:[]}},{id:'h5',name:'Саморефлексия (Вечер)',icon:'moon',repeat:{type:'daily',value:[]}}];
             this.save();
         }
         pieMonth=AppState.selectedDate.slice(0,7);
+        stripBaseDate=new Date(AppState.selectedDate+'T12:00:00');
         if(AppState.settings.theme==='light')document.body.classList.add('light');
+        if(Notification.permission==='default')Notification.requestPermission();
         showPage('dashboard');
     },
     migrate(){
@@ -116,6 +146,23 @@ function isScheduledFor(i,d){
     }
 }
 
+// TASK MIGRATION (Carry-over)
+function migrateTasks(){
+    const today=getLocalDate();
+    let changed=false;
+    AppState.tasks.forEach(t=>{
+        if((!t.repeat || t.repeat.type==='none') && !t.archived && t.date < today){
+            // Если задача за прошлое и не выполнена в рекордах
+            const rec=AppState.records[t.date];
+            if(!rec || !rec.tasks[t.id]){
+                t.date = today;
+                changed = true;
+            }
+        }
+    });
+    if(changed) Storage.save();
+}
+
 // STREAKS
 function getStreak(habit){let streak=0;const d=new Date();d.setDate(d.getDate()-1);// start from yesterday
     for(let i=0;i<365;i++){const ds=formatDate(d);if(!isScheduledFor(habit,ds)){d.setDate(d.getDate()-1);continue}
@@ -145,7 +192,8 @@ function updateDashboard(){
 }
 
 // WEEK STRIP
-function renderWeekStrip(){const s=document.getElementById('week-strip');s.innerHTML='';const now=new Date(),st=new Date(now);st.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));const D=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'],td=getLocalDate();for(let i=0;i<7;i++){const d=new Date(st);d.setDate(st.getDate()+i);const ds=formatDate(d),el=document.createElement('div');el.className=`week-day ${ds===AppState.selectedDate?'selected':''} ${ds===td?'today':''}`;el.innerHTML=`<span class="day-name">${D[i]}</span><span class="day-num">${d.getDate()}</span>`;el.onclick=()=>{AppState.selectedDate=ds;refreshCurrentPage()};s.appendChild(el)}}
+function renderWeekStrip(){const s=document.getElementById('week-strip');s.innerHTML='';const st=new Date(stripBaseDate);st.setDate(st.getDate()-(st.getDay()===0?6:st.getDay()-1));const D=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'],td=getLocalDate();for(let i=0;i<7;i++){const d=new Date(st);d.setDate(st.getDate()+i);const ds=formatDate(d),el=document.createElement('div');el.className=`week-day ${ds===AppState.selectedDate?'selected':''} ${ds===td?'today':''}`;el.innerHTML=`<span class="day-name">${D[i]}</span><span class="day-num">${d.getDate()}</span>`;el.onclick=()=>{AppState.selectedDate=ds;refreshCurrentPage()};s.appendChild(el)}}
+function shiftWeek(d){stripBaseDate.setDate(stripBaseDate.getDate()+d*7);renderWeekStrip()}
 
 // CALENDAR GRID
 function renderCalGrid(){const g=document.getElementById('cal-grid');g.innerHTML='';const sel=AppState.selectedDate,y=parseInt(sel.slice(0,4)),m=parseInt(sel.slice(5,7));
@@ -197,8 +245,21 @@ function renderTasks(){const L=document.getElementById('tasks-list');L.innerHTML
 function renderFinance(){const L=document.getElementById('finance-list');L.innerHTML='';const date=AppState.selectedDate;let inc=0,exp=0;
     AppState.finances.filter(f=>isScheduledFor(f,date)).forEach(f=>{if(f.type==='in')inc+=Number(f.amount);else exp+=Number(f.amount);const el=document.createElement('div');el.className='zen-card';const isIn=f.type==='in';
         el.innerHTML=`<div class="zen-icon" style="color:${isIn?'var(--sec)':'var(--pink)'}">${isIn?IC.up:IC.down}</div><div style="flex:1"><div style="font-weight:700;font-size:15px">${f.name}</div>${!isIn&&f.category?`<div style="font-size:11px;color:${CAT_COL[f.category]||'#64748b'};margin-top:2px">${f.category}</div>`:''}</div><div style="font-weight:800;font-size:14px;margin-right:6px;color:${isIn?'var(--sec)':'var(--pink)'}">${isIn?'+':'-'}${Number(f.amount).toLocaleString()}</div>${actBtns('finance',f.id)}`;L.appendChild(el)});
-    document.getElementById('bal-in').textContent=inc.toLocaleString();document.getElementById('bal-out').textContent=exp.toLocaleString();document.getElementById('balance-total').textContent=(inc-exp).toLocaleString();
+    document.getElementById('bal-in').textContent='+'+inc.toLocaleString();document.getElementById('bal-out').textContent='-'+exp.toLocaleString();document.getElementById('balance-total').textContent=(inc-exp).toLocaleString();
+    
+    // Monthly Summary
+    let mInc=0, mExp=0;
+    const pm=pieMonth||AppState.selectedDate.slice(0,7);
+    const y=parseInt(pm.slice(0,4)),m=parseInt(pm.slice(5,7)),days=new Date(y,m,0).getDate();
+    for(let d=1;d<=days;d++){
+        const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        AppState.finances.filter(f=>isScheduledFor(f,ds)).forEach(f=>{if(f.type==='in')mInc+=Number(f.amount);else mExp+=Number(f.amount)});
+    }
+    document.getElementById('fin-month-title').textContent=`ИТОГИ МЕСЯЦА: ${MO[m-1].toUpperCase()}`;
+    document.getElementById('month-bal-in').textContent=mInc.toLocaleString();document.getElementById('month-bal-out').textContent=mExp.toLocaleString();document.getElementById('month-balance-total').textContent=(mInc-mExp).toLocaleString();
+
     renderPieChart();renderBudgetLimits()}
+
 
 function getMonthCats(pm){const y=parseInt(pm.slice(0,4)),m=parseInt(pm.slice(5,7)),days=new Date(y,m,0).getDate(),cats={};for(let d=1;d<=days;d++){const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;AppState.finances.filter(f=>f.type==='out'&&isScheduledFor(f,ds)).forEach(f=>{const c=f.category||'Другое';cats[c]=(cats[c]||0)+Number(f.amount)})}return cats}
 
@@ -214,7 +275,7 @@ function renderBudgetLimits(){const c=document.getElementById('budget-limits');c
     Object.entries(lim).forEach(([cat,max])=>{if(!max)return;const spent=cats[cat]||0;const pct=Math.min(spent/max*100,100);const warn=pct>=80;
         c.innerHTML+=`<div class="limit-item"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${cat}</span><span class="${warn?'limit-warn':''}">${spent.toLocaleString()} / ${Number(max).toLocaleString()}</span></div><div class="limit-bar"><div class="limit-fill" style="width:${pct}%;background:${warn?'var(--pink)':CAT_COL[cat]||'var(--pri)'}"></div></div></div>`})}
 
-function shiftPieMonth(d){const y=parseInt(pieMonth.slice(0,4)),m=parseInt(pieMonth.slice(5,7));const n=new Date(y,m-1+d,1);pieMonth=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;renderPieChart();renderBudgetLimits()}
+function shiftPieMonth(d){const y=parseInt(pieMonth.slice(0,4)),m=parseInt(pieMonth.slice(5,7));const n=new Date(y,m-1+d,1);pieMonth=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;renderFinance()}
 
 // CRUD
 function toggleH(id,e){if(e)e.stopPropagation();haptic('light');const d=AppState.selectedDate;if(!AppState.records[d])AppState.records[d]={habits:{},tasks:{}};AppState.records[d].habits[id]=!AppState.records[d].habits[id];Storage.save();renderHabits();updateDashboard()}
@@ -273,17 +334,34 @@ function renderMoodGraph(){const svg=document.getElementById('mood-graph');svg.i
     pts.forEach(p=>{svg.innerHTML+=`<text x="${p.x}" y="78" text-anchor="middle" fill="var(--muted)" font-size="7">${p.label}</text>`})}
 
 // POMODORO
-let pomoInterval=null,pomoSec=25*60,pomoRunning=false,pomoMode='focus';
-function openPomodoro(){document.getElementById('pomo-overlay').classList.add('active');requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById('pomo-sheet').classList.add('active')));updatePomoDisplay()}
+let pomoInterval=null,pomoSec=25*60,pomoRunning=false,pomoMode='focus',pomoSess=1;
+function openPomodoro(){document.getElementById('pomo-overlay').classList.add('active');requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById('pomo-sheet').classList.add('active')));updateStatusPomo()}
 function closePomodoro(){document.getElementById('pomo-sheet').classList.remove('active');setTimeout(()=>document.getElementById('pomo-overlay').classList.remove('active'),350)}
+function setPomoMode(m){pomoMode=m;const times={focus:AppState.settings.pomo.focus*60,short:AppState.settings.pomo.short*60,long:AppState.settings.pomo.long*60};pomoSec=times[m];updateStatusPomo()}
+function updateStatusPomo(){
+    document.querySelectorAll('.pomo-mode-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('mode-'+pomoMode).classList.add('active');
+    document.getElementById('pomo-sessions').textContent=`Сессия ${pomoSess} / 4`;
+    updatePomoDisplay();
+}
 function updatePomoDisplay(){const m=Math.floor(pomoSec/60),s=pomoSec%60;document.getElementById('pomo-time').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    const total=pomoMode==='focus'?25*60:5*60;const pct=(1-pomoSec/total)*327;document.getElementById('pomo-progress').setAttribute('stroke-dashoffset',String(327-pct));
-    document.getElementById('pomo-label').textContent=pomoMode==='focus'?'Фокус':'Отдых'}
+    const total=(pomoMode==='focus'?AppState.settings.pomo.focus:pomoMode==='short'?AppState.settings.pomo.short:AppState.settings.pomo.long)*60;
+    const pct=(1-pomoSec/total)*327;document.getElementById('pomo-progress').setAttribute('stroke-dashoffset',String(327-pct))}
 function startPomo(){if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;document.getElementById('pomo-start').textContent='Старт';return}
     pomoRunning=true;document.getElementById('pomo-start').textContent='Пауза';
-    pomoInterval=setInterval(()=>{pomoSec--;if(pomoSec<=0){clearInterval(pomoInterval);pomoRunning=false;haptic('notification.success');
-        if(pomoMode==='focus'){pomoMode='break';pomoSec=5*60}else{pomoMode='focus';pomoSec=25*60}document.getElementById('pomo-start').textContent='Старт'}updatePomoDisplay()},1000)}
-function resetPomo(){clearInterval(pomoInterval);pomoRunning=false;pomoMode='focus';pomoSec=25*60;document.getElementById('pomo-start').textContent='Старт';updatePomoDisplay()}
+    pomoInterval=setInterval(()=>{pomoSec--;if(pomoSec<=0){
+        clearInterval(pomoInterval);pomoRunning=false;document.getElementById('pomo-start').textContent='Старт';
+        haptic('notification.success');sendPomoNotify();
+        if(pomoMode==='focus'){
+            if(pomoSess<4){pomoSess++;setPomoMode('short')}else{pomoSess=1;setPomoMode('long')}
+        }else{setPomoMode('focus')}
+    }updatePomoDisplay()},1000)}
+function resetPomo(){clearInterval(pomoInterval);pomoRunning=false;pomoMode='focus';pomoSess=1;pomoSec=AppState.settings.pomo.focus*60;document.getElementById('pomo-start').textContent='Старт';updateStatusPomo()}
+function sendPomoNotify(){
+    const msg=pomoMode==='focus'?'Время отдохнуть!':'Пора за работу!';
+    if(Notification.permission==='granted')new Notification('Zen Помодоро',{body:msg,icon:'favicon.ico'});
+    try{const audio=new AudioContext();const o=audio.createOscillator();const g=audio.createGain();o.connect(g);g.connect(audio.destination);o.type='sine';o.frequency.setValueAtTime(880,audio.currentTime);g.gain.setValueAtTime(0.1,audio.currentTime);o.start();g.gain.exponentialRampToValueAtTime(0.00001,audio.currentTime+1);o.stop(audio.currentTime+1)}catch(e){}
+}
 
 // SETTINGS
 function openSettings(){document.getElementById('settings-overlay').classList.add('active');requestAnimationFrame(()=>requestAnimationFrame(()=>document.getElementById('settings-sheet').classList.add('active')))}
