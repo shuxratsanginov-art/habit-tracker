@@ -168,8 +168,12 @@
                 <select id="m-type"><option value="out">Расход</option><option value="in">Доход</option></select>
                 <select id="m-category"><option value="Еда">Еда</option><option value="Транспорт">Транспорт</option><option value="Жильё">Жильё</option><option value="Развлечения">Развлечения</option><option value="Связь">Связь</option><option value="Здоровье">Здоровье</option><option value="Одежда">Одежда</option><option value="Образование">Образование</option><option value="Подписки">Подписки</option><option value="Другое">Другое</option></select>
             </div>
-            <div id="m-priority-field" style="display:none">
-                <select id="m-priority"><option value="high">Высокий приоритет</option><option value="med">Средний</option><option value="low">Низкий</option></select>
+            <div id="m-date-field" style="display:none;margin-bottom:12px">
+                <label style="font-size:11px;color:var(--text2);font-weight:700;margin-bottom:4px;display:block">Дата выполнения (перенос)</label>
+                <input type="date" id="m-date">
+            </div>
+            <div id="m-priority-field" style="display:none;margin-bottom:12px">
+                <select id="m-priority"><option value="high">Высокий приоритет</option><option value="med" selected>Средний</option><option value="low">Низкий</option></select>
             </div>
             <select id="m-repeat"><option value="none">Только этот день</option><option value="daily">Каждый день</option><option value="weekdays">По дням недели</option><option value="monthly">Раз в месяц</option></select>
             <div id="m-weekdays" class="weekday-picker" style="display:none"><button type="button" class="wd-btn" data-day="1">ПН</button><button type="button" class="wd-btn" data-day="2">ВТ</button><button type="button" class="wd-btn" data-day="3">СР</button><button type="button" class="wd-btn" data-day="4">ЧТ</button><button type="button" class="wd-btn" data-day="5">ПТ</button><button type="button" class="wd-btn" data-day="6">СБ</button><button type="button" class="wd-btn" data-day="7">ВС</button></div>

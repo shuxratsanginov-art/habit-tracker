@@ -80,7 +80,7 @@ const Storage={
         pieMonth=AppState.selectedDate.slice(0,7);
         stripBaseDate=new Date(AppState.selectedDate+'T12:00:00');
         if(AppState.settings.theme==='light')document.body.classList.add('light');
-        if(Notification.permission==='default')Notification.requestPermission();
+        if('Notification' in window && Notification.permission==='default')Notification.requestPermission();
         showPage('dashboard');
     },
     migrate(){
@@ -290,7 +290,8 @@ let modalType='',modalId=null,selDays=new Set();
 function openModal(type,item=null){modalType=type;modalId=item?.id||null;document.getElementById('m-name').value=item?item.name:'';document.getElementById('m-repeat').value=item?.repeat?.type||'none';
     document.getElementById('m-finance-fields').style.display=type==='finance'?'block':'none';
     document.getElementById('m-priority-field').style.display=type==='task'?'block':'none';
-    if(type==='task')document.getElementById('m-priority').value=item?.priority||'med';
+    document.getElementById('m-date-field').style.display=type==='task'?'block':'none';
+    if(type==='task'){document.getElementById('m-priority').value=item?.priority||'med';document.getElementById('m-date').value=item?.date||AppState.selectedDate;}
     if(type==='finance'){document.getElementById('m-amount').value=item?item.amount:'';document.getElementById('m-type').value=item?item.type:'out';document.getElementById('m-category').value=item?.category||'Еда';toggleCatVis()}
     selDays.clear();document.querySelectorAll('.wd-btn').forEach(b=>b.classList.remove('active'));
     if(item?.repeat?.type==='weekdays')item.repeat.value.forEach(v=>{selDays.add(v);document.querySelector(`.wd-btn[data-day="${v}"]`)?.classList.add('active')});
@@ -301,7 +302,8 @@ function closeModal(){document.getElementById('modal-sheet').classList.remove('a
 function toggleWD(){document.getElementById('m-weekdays').style.display=document.getElementById('m-repeat').value==='weekdays'?'flex':'none'}
 function toggleCatVis(){document.getElementById('m-category').style.display=document.getElementById('m-type').value==='in'?'none':'block'}
 function saveModal(){const name=document.getElementById('m-name').value;if(!name)return;haptic('light');
-    const rT=document.getElementById('m-repeat').value,date=AppState.selectedDate;let rp={type:rT,value:[]};
+    const rT=document.getElementById('m-repeat').value;let date=AppState.selectedDate;let rp={type:rT,value:[]};
+    if(modalType==='task'){date=document.getElementById('m-date').value||AppState.selectedDate}
     if(rT==='weekdays')rp.value=[...selDays];if(rT==='monthly')rp.value=[new Date(date+'T12:00:00').getDate()];
     const data={id:modalId||Date.now().toString(),name,repeat:rp,date};
     if(modalType==='habit')data.icon=data.icon||'bolt';
