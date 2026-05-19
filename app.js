@@ -273,7 +273,7 @@ function renderHabits(){const L=document.getElementById('habits-list');L.innerHT
 function renderTasks(){const L=document.getElementById('tasks-list');L.innerHTML='';const date=AppState.selectedDate,rec=AppState.records[date]||{tasks:{}};
     const sorted=AppState.tasks.filter(t=>!t.archived&&isScheduledFor(t,date)).sort((a,b)=>{const o={high:0,med:1,low:2};return(o[a.priority]||1)-(o[b.priority]||1)});
     sorted.forEach(t=>{const done=!!rec.tasks[t.id],el=document.createElement('div');el.className=`zen-card ${done?'completed':''}`;
-        el.innerHTML=`<div class="priority-bar p-${t.priority||'med'}"></div><div style="flex:1"><div style="font-weight:700;font-size:15px">${t.name}</div></div>${actBtns('task',t.id)}<div class="zen-check" onclick="toggleT('${t.id}',event)">${done?IC.check:''}</div>`;L.appendChild(el)});
+        el.innerHTML=`<div class="priority-bar p-${t.priority||'med'}"></div><div style="flex:1"><div style="font-weight:700;font-size:15px">${t.name}</div>${t.time?`<div style="font-size:11px;color:var(--text2);margin-top:2px">🔔 ${t.time}</div>`:''}</div>${actBtns('task',t.id)}<div class="zen-check" onclick="toggleT('${t.id}',event)">${done?IC.check:''}</div>`;L.appendChild(el)});
     const arch=AppState.tasks.filter(t=>t.archived);const aDiv=document.getElementById('tasks-archive'),aL=document.getElementById('tasks-arch-list');
     if(arch.length){aDiv.style.display='block';aL.innerHTML='';arch.forEach(t=>{const el=document.createElement('div');el.className='zen-card archived';el.innerHTML=`<div class="priority-bar p-${t.priority||'med'}"></div><div style="flex:1"><div style="font-weight:700;font-size:14px">${t.name}</div></div>${actBtns('task',t.id,true)}`;aL.appendChild(el)})}else aDiv.style.display='none'}
 
@@ -326,7 +326,7 @@ function openModal(type,item=null){modalType=type;modalId=item?.id||null;documen
     document.getElementById('m-finance-fields').style.display=type==='finance'?'block':'none';
     document.getElementById('m-priority-field').style.display=type==='task'?'block':'none';
     document.getElementById('m-date-field').style.display=type==='task'?'block':'none';
-    if(type==='task'){document.getElementById('m-priority').value=item?.priority||'med';document.getElementById('m-date').value=item?.date||AppState.selectedDate;}
+    if(type==='task'){document.getElementById('m-priority').value=item?.priority||'med';document.getElementById('m-date').value=item?.date||AppState.selectedDate;document.getElementById('m-time').value=item?.time||'';}
     if(type==='finance'){document.getElementById('m-amount').value=item?item.amount:'';document.getElementById('m-type').value=item?item.type:'out';document.getElementById('m-category').value=item?.category||'Еда';toggleCatVis()}
     selDays.clear();document.querySelectorAll('.wd-btn').forEach(b=>b.classList.remove('active'));
     if(item?.repeat?.type==='weekdays')item.repeat.value.forEach(v=>{selDays.add(v);document.querySelector(`.wd-btn[data-day="${v}"]`)?.classList.add('active')});
@@ -338,15 +338,25 @@ function toggleWD(){document.getElementById('m-weekdays').style.display=document
 function toggleCatVis(){document.getElementById('m-category').style.display=document.getElementById('m-type').value==='in'?'none':'block'}
 function saveModal(){const name=document.getElementById('m-name').value;if(!name)return;haptic('light');
     const rT=document.getElementById('m-repeat').value;let date=AppState.selectedDate;let rp={type:rT,value:[]};
-    if(modalType==='task'){date=document.getElementById('m-date').value||AppState.selectedDate}
+    let timeStr = '';
+    if(modalType==='task'){date=document.getElementById('m-date').value||AppState.selectedDate; timeStr=document.getElementById('m-time').value;}
     if(rT==='weekdays')rp.value=[...selDays];if(rT==='monthly')rp.value=[new Date(date+'T12:00:00').getDate()];
     const data={id:modalId||Date.now().toString(),name,repeat:rp,date};
     if(modalType==='habit')data.icon=data.icon||'bolt';
-    else if(modalType==='task'){data.priority=document.getElementById('m-priority').value}
+    else if(modalType==='task'){data.priority=document.getElementById('m-priority').value; data.time = timeStr;}
     else if(modalType==='finance'){data.amount=document.getElementById('m-amount').value;data.type=document.getElementById('m-type').value;if(data.type==='out')data.category=document.getElementById('m-category').value}
     const k=modalType==='finance'?'finances':modalType+'s';
     if(modalId){const i=AppState[k].findIndex(x=>x.id===modalId);if(i>=0)Object.assign(AppState[k][i],data)}else AppState[k].push(data);
-    Storage.save();closeModal();refreshCurrentPage()}
+    Storage.save();closeModal();refreshCurrentPage();
+    
+    // Постановка уведомления через API бота
+    if(modalType==='task' && data.time && Storage.tg?.initDataUnsafe?.user?.id){
+        fetch('https://zen-bot.fly.dev/api/remind', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({chatId: Storage.tg.initDataUnsafe.user.id, taskId: data.id, taskName: data.name, date: data.date, time: data.time})
+        }).catch(e=>console.log('Push err', e));
+    }
+}
 
 // REFLECTION
 function loadReflection(){document.getElementById('ref-date').textContent=dateLabel(AppState.selectedDate);const r=AppState.records[AppState.selectedDate]?.reflect||{};
