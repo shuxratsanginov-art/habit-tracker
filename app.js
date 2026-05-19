@@ -91,31 +91,66 @@ const Storage={
         }
     },
     loadLocal(){const d=localStorage.getItem('zen_v5');if(d)try{Object.assign(AppState,JSON.parse(d))}catch(e){}},
+    _saveChunked(key, data) {
+        if(!this.tg?.CloudStorage) return;
+        const str = JSON.stringify(data);
+        const chunks = str.match(/.{1,3500}/g) || [str];
+        try{this.tg.CloudStorage.setItem(key+'_c', chunks.length.toString())}catch(e){}
+        chunks.forEach((c, i) => { try{this.tg.CloudStorage.setItem(key+'_'+i, c)}catch(e){} });
+    },
+    async _loadChunked(key) {
+        return new Promise(res => {
+            if(!this.tg?.CloudStorage) return res(null);
+            this.tg.CloudStorage.getItem(key+'_c', (e, v) => {
+                if(e || !v) return res(null);
+                const len = parseInt(v); let loaded = 0; const chunks = [];
+                if(len === 0) return res(null);
+                for(let i=0; i<len; i++) {
+                    this.tg.CloudStorage.getItem(key+'_'+i, (e2, v2) => {
+                        chunks[i] = v2 || ''; loaded++;
+                        if(loaded === len) res(chunks.join(''));
+                    });
+                }
+            });
+        });
+    },
     save(){
         localStorage.setItem('zen_v5',JSON.stringify(AppState));
         if(!this.tg?.initData)return;
-        const core={settings:AppState.settings,habits:AppState.habits,tasks:AppState.tasks,finances:AppState.finances};
-        try{this.tg.CloudStorage.setItem('zc5',JSON.stringify(core))}catch(e){}
-        // Records by month
+        this._saveChunked('zc6_s', AppState.settings);
+        this._saveChunked('zc6_h', AppState.habits);
+        this._saveChunked('zc6_t', AppState.tasks);
+        this._saveChunked('zc6_f', AppState.finances);
         const months={};
         Object.keys(AppState.records).forEach(k=>{const m=k.slice(0,7);if(!months[m])months[m]={};months[m][k]=AppState.records[k]});
         Object.entries(months).forEach(([m,recs])=>{
             const trimmed={};Object.entries(recs).forEach(([k,v])=>{trimmed[k]={habits:v.habits||{},tasks:v.tasks||{}};if(v.reflect){const r={...v.reflect};Object.keys(r).forEach(f=>{if(typeof r[f]==='string')r[f]=r[f].slice(0,60)});trimmed[k].reflect=r}});
-            try{this.tg.CloudStorage.setItem('zr_'+m,JSON.stringify(trimmed))}catch(e){}
+            this._saveChunked('zr6_'+m, trimmed);
         });
     },
     async loadCloud(){
+        const [sStr,hStr,tStr,fStr]=await Promise.all([this._loadChunked('zc6_s'),this._loadChunked('zc6_h'),this._loadChunked('zc6_t'),this._loadChunked('zc6_f')]);
+        if(sStr||hStr){ // v6 exists
+            try{if(sStr)AppState.settings={...AppState.settings,...JSON.parse(sStr)}}catch(e){}
+            try{if(hStr)AppState.habits=JSON.parse(hStr)}catch(e){}
+            try{if(tStr)AppState.tasks=JSON.parse(tStr)}catch(e){}
+            try{if(fStr)AppState.finances=JSON.parse(fStr)}catch(e){}
+            const now=new Date(),cm=formatDate(now).slice(0,7),pm=new Date(now.getFullYear(),now.getMonth()-1,1),pmk=formatDate(pm).slice(0,7);
+            const [cmRec,pmRec]=await Promise.all([this._loadChunked('zr6_'+cm),this._loadChunked('zr6_'+pmk)]);
+            if(cmRec)try{Object.assign(AppState.records,JSON.parse(cmRec))}catch(e){}
+            if(pmRec)try{Object.assign(AppState.records,JSON.parse(pmRec))}catch(e){}
+            return;
+        }
+        // Fallback v5
         return new Promise(res=>{
             this.tg.CloudStorage.getItem('zc5',(e,v)=>{
                 let c; try{ c = v ? JSON.parse(v) : null; }catch(x){}
-                // Если zc5 существует и там БОЛЬШЕ 5 привычек (значит это не ошибка дефолта)
-                if(c && c.habits && c.habits.length > 5){
-                    AppState.habits=c.habits;AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})};
+                if(c && Object.keys(c).length > 0){
+                    AppState.habits=c.habits||[];AppState.tasks=c.tasks||[];AppState.finances=c.finances||[];AppState.settings={...AppState.settings,...(c.settings||{})};
                     const now=new Date(),cm=formatDate(now).slice(0,7),pm=new Date(now.getFullYear(),now.getMonth()-1,1),pmk=formatDate(pm).slice(0,7);
                     let loaded=0;const done=()=>{loaded++;if(loaded>=2)res()};
                     [cm,pmk].forEach(m=>{this.tg.CloudStorage.getItem('zr_'+m,(e2,v2)=>{if(!e2&&v2)try{Object.assign(AppState.records,JSON.parse(v2))}catch(x){} done()})});
                 } else {
-                    // Cloud Migration: загружаем старые резервные копии из облака
                     this.tg.CloudStorage.getItem('zc',(e1,v1)=>{
                         if(!e1&&v1){
                             try{const c2=JSON.parse(v1);AppState.habits=c2.habits||[];AppState.tasks=c2.tasks||[];AppState.finances=c2.finances||[];AppState.settings={...AppState.settings,...(c2.settings||{})}}catch(x){}
